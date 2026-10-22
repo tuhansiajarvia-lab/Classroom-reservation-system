@@ -22,24 +22,54 @@ body {
     min-height: 100vh;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Устанавливаем изображение фоном (файл должен называться bg-login.png и лежать в папке public) */
+    background-image: url('bg-login.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     padding: 20px;
+    position: relative;
+}
+
+/* Полупрозрачный слой поверх картинки для читаемости формы */
+.auth-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+
+.auth-hero,
+.auth-card {
+    position: relative;
+    z-index: 2;
 }
 
 .auth-hero {
     color: white;
     max-width: 450px;
     margin-right: 50px;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
 }
 
 .hero-illustration {
     font-size: 5rem;
     margin-bottom: 20px;
+    opacity: 0.9;
 }
 
 .auth-hero h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
+    color: white;
+}
+
+.auth-hero p {
+    color: #e0e0e0;
 }
 
 .auth-card {
@@ -304,4 +334,21 @@ th, td {
 th {
     background: #f8fafc;
     font-weight: 600;
+}
+
+/* Админ-форма */
+.admin-form-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    max-width: 500px;
+}
+
+.admin-form-card input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
 }
