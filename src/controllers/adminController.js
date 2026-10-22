@@ -124,7 +124,7 @@ exports.deleteClassroom = async (req, res) => {
 
     if (result.affectedRows === 0) {
       await connection.rollback();
-      return.status(404).json({
+      res.status(404).json({
         message: 'Luokkahuonetta ei löytynyt'
       });
     }
