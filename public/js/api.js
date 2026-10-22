@@ -1,6 +1,5 @@
 // Базовый URL для бэкенда
 const API_URL = 'http://127.0.0.1:5000/api';
-
 /**
  * Универсальный помощник для отправки запросов с автоматической передачей кук (credentials)
  */
@@ -21,7 +20,7 @@ async function apiRequest(endpoint, options = {}) {
         ...options,
         headers: {
             ...defaultOptions.headers,
-            ...(options.headers || {})
+            ...(options.headers || {})  
         }
     };
 
