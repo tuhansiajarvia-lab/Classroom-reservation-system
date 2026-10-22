@@ -234,7 +234,7 @@ async function loadClassroomsCards(user) {
 
         card.addEventListener('click', () => {
             classroomSelect.value = option.value;
-            loadSeats(Boolean(user));
+            loadSeats(Boolean(user));   
 
             const modal = document.getElementById('seatModal');
             const modalTitle = document.getElementById('modalClassroomTitle');
