@@ -4,6 +4,39 @@ import { handleReservationAction, loadReservations } from './reservation.js';
 import { updateAuthUI } from './ui.js';
 
 /**
+ * Автоматический выход из системы при неактивности (15 минут)
+ */
+function initInactivityTimer() {
+    const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 минут в миллисекундах
+    let inactivityTimer;
+
+    async function logoutDueToInactivity() {
+        const user = getCurrentUser();
+        if (!user) return;
+
+        console.log('Сессия истекла из-за неактивности.');
+        await handleLogout();
+        updateAuthUI(null);
+        
+        alert('Istuntosi on vanhentunut epäaktiivisuuden vuoksi. Kirjaudu uudelleen sisään.');
+        window.location.reload();
+    }
+
+    function resetTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(logoutDueToInactivity, INACTIVITY_LIMIT);
+    }
+
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+
+    events.forEach(event => {
+        window.addEventListener(event, resetTimer, true);
+    });
+
+    resetTimer();
+}
+
+/**
  * Инициализация приложения при загрузке страницы
  */
 async function init() {
@@ -60,6 +93,7 @@ async function init() {
                 updateAuthUI(user);
                 await loadReservations(user);
                 await loadClassroomsCards(user);
+                initInactivityTimer(); // Запуск таймера при входе
             }
         });
     }
@@ -159,6 +193,7 @@ async function init() {
     await loadClassroomsCards(user);
     if (user) {
         await loadReservations(user);
+        initInactivityTimer(); // Запуск таймера, если сессия уже активна при перезагрузке
     }
 }
 
@@ -211,4 +246,5 @@ async function loadClassroomsCards(user) {
     });
 }
 
+// Запуск инициализации приложения
 init();
