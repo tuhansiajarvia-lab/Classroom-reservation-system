@@ -56,3 +56,9 @@ classroom-reservation-backend/
 ├── package.json
 ├── server.js              # Sovelluksen päätiedosto ja käynnistys
 └── swagger.yaml           # API-dokumentaatio (OpenAPI 3.0)
+
+User's date
+
+name: Test User
+@: testuser@gmail.com
+psw: 123qwe
