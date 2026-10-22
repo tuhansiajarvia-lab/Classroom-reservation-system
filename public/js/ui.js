@@ -1,32 +1,32 @@
 /**
- * Обновляет элементы интерфейса в зависимости от того, авторизован пользователь или нет, а также от его роли
+ * Обновляет видимость экранов и элементов интерфейса в зависимости от авторизации пользователя
  */
 export function updateAuthUI(currentUser) {
-    const authForms = document.getElementById('authForms');
-    const logoutSection = document.getElementById('logoutSection');
-    const formContent = document.getElementById('reservationFormContent');
-    const loginPromptText = document.getElementById('loginPromptText');
+    const authView = document.getElementById('authView');
+    const mainView = document.getElementById('mainView');
     const loggedUserText = document.getElementById('loggedUserText');
-    const adminClassroomSection = document.getElementById('adminClassroomSection');
+    const adminTabBtn = document.getElementById('adminTabBtn');
 
     if (currentUser) {
-        if (authForms) authForms.style.display = 'none';
-        if (logoutSection) logoutSection.style.display = 'flex';
-        if (loggedUserText) {
-            loggedUserText.textContent = `Kirjautunut: ${currentUser.nimi} (${currentUser.rooli})`;
-        }
-        if (formContent) formContent.classList.remove('disabled-section');
-        if (loginPromptText) loginPromptText.style.display = 'none';
+        // Показываем основной экран приложения, скрываем экран входа
+        if (authView) authView.style.display = 'none';
+        if (mainView) mainView.style.display = 'block';
 
+        if (loggedUserText) {
+            loggedUserText.textContent = `${currentUser.nimi} (${currentUser.rooli})`;
+        }
+
+        // Показываем вкладку администратора, если у пользователя соответствующая роль
         const isAdmin = currentUser.rooli === 'admin' || currentUser.rooli === 'ylläpitäjä';
-        if (adminClassroomSection) {
-            adminClassroomSection.style.display = isAdmin ? 'block' : 'none';
+        if (adminTabBtn) {
+            adminTabBtn.style.display = isAdmin ? 'block' : 'none';
         }
     } else {
-        if (authForms) authForms.style.display = 'block';
-        if (logoutSection) logoutSection.style.display = 'none';
-        if (formContent) formContent.classList.add('disabled-section');
-        if (loginPromptText) loginPromptText.style.display = 'block';
-        if (adminClassroomSection) adminClassroomSection.style.display = 'none';
+        // Показываем экран входа, скрываем основное приложение
+        if (authView) authView.style.display = 'block';
+        if (mainView) mainView.style.display = 'none';
+        if (adminTabBtn) {
+            adminTabBtn.style.display = 'none';
+        }
     }
 }
