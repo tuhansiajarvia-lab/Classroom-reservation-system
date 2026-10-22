@@ -7,32 +7,45 @@ import { updateAuthUI } from './ui.js';
  * Инициализация приложения при загрузке страницы
  */
 async function init() {
-    // 1. Слушатели изменения класса или даты для перезагрузки мест
-    const classroomSelect = document.getElementById('classroomSelect');
-    const bookingDate = document.getElementById('bookingDate');
-
-    if (classroomSelect) {
-        classroomSelect.addEventListener('change', () => loadSeats(Boolean(getCurrentUser())));
-    }
-    if (bookingDate) {
-        bookingDate.addEventListener('change', () => loadSeats(Boolean(getCurrentUser())));
-    }
-
-    // 2. Кнопки авторизации и действий
-    const reserveBtn = document.getElementById('reserveBtn');
-    if (reserveBtn) {
-        reserveBtn.addEventListener('click', async () => {
-            const user = getCurrentUser();
-            if (!user) return;
+    // 1. Навигация по вкладкам приложения (Табы)
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            navTabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
             
-            const result = await handleReservationAction(getSelectedSeatId(), 'bookingDate');
-            if (result.success) {
-                await loadSeats(Boolean(getCurrentUser()));
-                await loadReservations(user);
+            tab.classList.add('active');
+            const targetId = tab.getAttribute('data-target');
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) {
+                targetContent.style.display = 'block';
+            }
+        });
+    });
+
+    // 2. Управление модальным окном выбора мест
+    const seatModal = document.getElementById('seatModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    if (closeModalBtn && seatModal) {
+        closeModalBtn.addEventListener('click', () => {
+            seatModal.style.display = 'none';
+        });
+        // Закрытие по клику вне модального окна
+        window.addEventListener('click', (e) => {
+            if (e.target === seatModal) {
+                seatModal.style.display = 'none';
             }
         });
     }
 
+    // 3. Слушатели изменения даты для перезагрузки мест
+    const bookingDate = document.getElementById('bookingDate');
+    if (bookingDate) {
+        bookingDate.addEventListener('change', () => loadSeats(Boolean(getCurrentUser())));
+    }
+
+    // 4. Кнопки авторизации, регистрации и выхода
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn) {
         loginBtn.addEventListener('click', async () => {
@@ -47,7 +60,7 @@ async function init() {
                 const user = getCurrentUser();
                 updateAuthUI(user);
                 await loadReservations(user);
-                await loadSeats(Boolean(user));
+                await loadClassroomsCards(user);
             }
         });
     }
@@ -73,11 +86,26 @@ async function init() {
             await handleLogout();
             updateAuthUI(null);
             await loadReservations(null);
-            await loadSeats(false);
         });
     }
 
-    // 3. Админ-функционал: добавление класса
+    // 5. Кнопка совершения бронирования внутри модального окна
+    const reserveBtn = document.getElementById('reserveBtn');
+    if (reserveBtn) {
+        reserveBtn.addEventListener('click', async () => {
+            const user = getCurrentUser();
+            if (!user) return;
+            
+            const result = await handleReservationAction(getSelectedSeatId(), 'bookingDate');
+            if (result.success) {
+                if (seatModal) seatModal.style.display = 'none';
+                await loadSeats(Boolean(user));
+                await loadReservations(user);
+            }
+        });
+    }
+
+    // 6. Админ-функционал: добавление класса
     const addClassroomBtn = document.getElementById('addClassroomBtn');
     if (addClassroomBtn) {
         addClassroomBtn.addEventListener('click', async () => {
@@ -86,12 +114,12 @@ async function init() {
             
             const result = await handleAddClassroom(isAdmin, 'adminClassroomMessage');
             if (result.success) {
-                await loadClassrooms();
+                await loadClassroomsCards(user);
             }
         });
     }
 
-    // 4. Переключение вкладок входа/регистрации
+    // 7. Переключение вкладок входа/регистрации на первом экране
     const showLoginTab = document.getElementById('showLoginTab');
     const showRegisterTab = document.getElementById('showRegisterTab');
     const loginSection = document.getElementById('loginSection');
@@ -99,26 +127,85 @@ async function init() {
 
     if (showLoginTab && showRegisterTab && loginSection && registerSection) {
         showLoginTab.addEventListener('click', () => {
+            showLoginTab.classList.add('active');
+            showRegisterTab.classList.remove('active');
             loginSection.style.display = 'block';
             registerSection.style.display = 'none';
         });
         showRegisterTab.addEventListener('click', () => {
+            showRegisterTab.classList.add('active');
+            showLoginTab.classList.remove('active');
             loginSection.style.display = 'none';
             registerSection.style.display = 'block';
         });
     }
 
-    // 5. Установка сегодняшней даты по умолчанию
+    // 8. Установка сегодняшней даты по умолчанию
     const today = new Date();
     const localDate = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
     if (bookingDate && !bookingDate.value) {
         bookingDate.value = localDate;
     }
 
-    // 6. Первичная загрузка данных с сервера
+    // 9. Первичная проверка авторизации и загрузка данных
     const user = await checkAuth(updateAuthUI);
+    await loadClassroomsCards(user);
+    if (user) {
+        await loadReservations(user);
+    }
+}
+
+/**
+ * Рендерит список классов в виде красивых карточек и связывает их с модальным окном схемы мест
+ */
+async function loadClassroomsCards(user) {
+    // Вызываем оригинальную функцию загрузки в <select> для совместимости
     await loadClassrooms();
-    await loadReservations(user);
+
+    const grid = document.getElementById('classroomsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    // Получаем список классов из селекта, который заполняет classroom.js
+    const classroomSelect = document.getElementById('classroomSelect');
+    if (!classroomSelect) return;
+
+    Array.from(classroomSelect.options).forEach(option => {
+        if (!option.value) return; // Пропускаем placeholder
+
+        const card = document.createElement('div');
+        card.className = 'classroom-card';
+
+        // Определяем тип оборудования по имени класса (пример для красоты интерфейса)
+        const name = option.textContent;
+        let equipment = 'Projektori, Valkokangas';
+        if (name.toLowerCase().includes('konferens') || name.toLowerCase().includes('sali')) {
+            equipment = 'Interaktiivinen kosketustaulu, Äänentoisto, Istumapaikat 15';
+        } else if (name.toLowerCase().includes('50') || name.toLowerCase().includes('60')) {
+            equipment = 'Interaktiivinen taulu, Dokumenttikamera';
+        }
+
+        card.innerHTML = `
+            <h3>🏫 ${name}</h3>
+            <div class="classroom-meta">
+                <p><strong>Varusteet:</strong> ${equipment}</p>
+            </div>
+            <button class="primary-btn" style="padding: 8px; font-size: 0.9rem;">Valitse paikat</button>
+        `;
+
+        // Клик по карточке открывает модальное окно с выбором мест для этого класса
+        card.addEventListener('click', () => {
+            classroomSelect.value = option.value;
+            loadSeats(Boolean(user));
+
+            const modal = document.getElementById('seatModal');
+            const modalTitle = document.getElementById('modalClassroomTitle');
+            if (modalTitle) modalTitle.textContent = `Paikkakartta: ${name}`;
+            if (modal) modal.style.display = 'flex';
+        });
+
+        grid.appendChild(card);
+    });
 }
 
 // Запуск инициализации
