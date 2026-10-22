@@ -3,121 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luokkahuonevarausjärjestelmä</title>
+    <title>Luokkahuoneiden varausjärjestelmä</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ЭКРАН 1: АВТОРИЗАЦИЯ (Виден, если не вошли) -->
+    <!-- ЭКРАН 1: АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ -->
     <div id="authView" class="view-container">
         <div class="auth-wrapper">
             <div class="auth-hero">
-                <!-- Строку с иконкой 🏫 мы убрали отсюда -->
                 <h1 style="font-size: 3rem;">Luokkahuoneiden varausjärjestelmä</h1>
-                <p style="font-size: 2rem;">Varaa tilat ja luokat helposti oppilaitoksessasi.</p>
+                <p>Varaa tilat ja luokat helposti oppilaitoksessasi.</p>
             </div>
             <div class="auth-card">
-
-                <!-- Форма входа -->
-                <div id="loginSection" class="form-pane">
-                    <h2>Tervetuloa takaisin</h2>
-                    <input type="email" id="loginEmail" placeholder="Sähköposti">
-                    <input type="password" id="loginPassword" placeholder="Salasana">
-                    <button id="loginBtn" class="primary-btn">Kirjaudu sisään</button>
-                    <p id="loginError" class="error-msg"></p>
+                <div class="auth-tabs">
+                    <button id="showLoginTab" class="tab-btn active">Kirjaudu</button>
+                    <button id="showRegisterTab" class="tab-btn">Rekisteröidy</button>
                 </div>
 
-                <!-- Форма регистрации -->
+                <!-- Секция входа -->
+                <div id="loginSection" class="form-pane">
+                    <input type="email" id="loginEmail" placeholder="Sähköposti" required>
+                    <input type="password" id="loginPassword" placeholder="Salasana" required>
+                    <button id="loginBtn" class="primary-btn">Kirjaudu sisään</button>
+                    <button id="switchToRegBtn" class="secondary-btn" style="margin-top: 10px;">Eikö sinulla ole tiliä? Rekisteröidy</button>
+                    <div id="loginError" class="error-msg"></div>
+                </div>
+
+                <!-- Секция регистрации -->
                 <div id="registerSection" class="form-pane" style="display: none;">
-                    <h2>Luo tunnus</h2>
-                    <input type="text" id="regName" placeholder="Koko nimi">
-                    <input type="email" id="regEmail" placeholder="Sähköposti">
-                    <input type="password" id="regPassword" placeholder="Salasana">
+                    <input type="text" id="regName" placeholder="Koko nimi" required>
+                    <input type="email" id="regEmail" placeholder="Sähköposti" required>
+                    <input type="password" id="regPassword" placeholder="Salasana" required>
                     <button id="registerBtn" class="primary-btn">Rekisteröidy</button>
+                    <button id="switchToLoginBtn" class="secondary-btn" style="margin-top: 10px;">Oletko jo rekisteröitynyt? Kirjaudu</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ЭКРАН 2: ОСНОВНОЙ ПOЛЬЗОВАТЕЛЬСКИЙ ИНТЕРФЕЙС (Виден после входа) -->
+    <!-- ЭКРАН 2: ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
     <div id="mainView" class="view-container" style="display: none;">
-        <!-- Шапка навигации -->
         <header class="app-header">
-            <div class="logo">🎓 Varausjärjestelmä</div>
+            <div class="logo">🏫 Varausjärjestelmä</div>
             <div class="user-info">
                 <span id="loggedUserText">Käyttäjä</span>
                 <button id="logoutBtn" class="logout-btn">Kirjaudu ulos</button>
             </div>
         </header>
 
-        <!-- Вкладки навигации по разделам -->
         <nav class="app-nav">
-            <button class="nav-tab active" data-target="classroomsTab">Luokat ja tilat</button>
-            <button class="nav-tab" data-target="reservationsTab">Omat varaukset</button>
-            <button id="adminTabBtn" class="nav-tab admin-only" data-target="adminTab" style="display:none;">Ylläpito</button>
+            <button class="nav-tab active" data-target="classroomsTab">Luokat ja Varaukset</button>
+            <button class="nav-tab" data-target="myReservationsTab">Omat varaukset</button>
+            <button class="nav-tab" id="adminTabBtn" data-target="adminTab" style="display: none;">Ylläpitäjä</button>
         </nav>
 
         <main class="app-content">
-            <!-- Вкладка 1: Список классов (Карточки) -->
-            <div id="classroomsTab" class="tab-content active">
+            <!-- Вкладка: Классы -->
+            <div id="classroomsTab" class="tab-content">
                 <div class="section-header">
-                    <h2>Valitse luokkahuone tai tila</h2>
+                    <h2>Valitse luokkahuone</h2>
                     <input type="date" id="bookingDate" class="date-picker">
                 </div>
-                <!-- Сюда JS будет динамически рендерить карточки классов -->
-                <div id="classroomsGrid" class="classrooms-grid"></div>
+                <div id="classroomsGrid" class="classrooms-grid">
+                    <!-- Карточки классов рендерятся динамически -->
+                </div>
             </div>
 
-            <!-- Вкладка 2: Список бронирований -->
-            <div id="reservationsTab" class="tab-content" style="display: none;">
-                <h2>Varaukset</h2>
-                <div class="table-responsive">
+            <!-- Вкладка: Мои бронирования -->
+            <div id="myReservationsTab" class="tab-content" style="display: none;">
+                <h2>Omat varauksesi</h2>
+                <div class="table-responsive" style="margin-top: 15px;">
                     <table>
                         <thead>
                             <tr>
-                                <th>Käyttäjä</th>
                                 <th>Luokka</th>
                                 <th>Paikka</th>
-                                <th>Ajankohta</th>
+                                <th>Päivämäärä</th>
                                 <th>Toiminnot</th>
                             </tr>
                         </thead>
-                        <tbody id="reservationTable"></tbody>
+                        <tbody id="myReservationsList">
+                            <!-- Список броней -->
+                        </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Вкладка 3: Админка (Добавление классов) -->
+            <!-- Вкладка: Админ-панель -->
             <div id="adminTab" class="tab-content" style="display: none;">
-                <h2>Ylläpaneeli: Lisää uusi luokka</h2>
-                <div class="admin-form-card">
-                    <input type="text" id="adminClassroomName" placeholder="Luokan nimi (esim. Konferenstisali)">
-                    <input type="number" id="adminClassroomRows" placeholder="Rivien määrä">
-                    <input type="number" id="adminClassroomSeats" placeholder="Paikkojen määrä rivillä">
+                <h2>Ylläpaneeli - Lisää uusi luokka</h2>
+                <div class="admin-form-card" style="margin-top: 15px;">
+                    <input type="text" id="newClassroomName" placeholder="Luokan nimi (esim. Luokka 404)">
                     <button id="addClassroomBtn" class="primary-btn">Lisää luokka</button>
-                    <p id="adminClassroomMessage"></p>
+                    <div id="adminClassroomMessage" class="error-msg"></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- ЭКРАН 3: СХЕМА МЕСТ В КЛАССЕ (Модальное окно или подэкран) -->
+    <!-- МОДАЛЬНОЕ ОКНО СХЕМЫ МЕСТ -->
     <div id="seatModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalClassroomTitle">Valitse paikka</h3>
+                <h3 id="modalClassroomTitle">Paikkakartta</h3>
                 <button id="closeModalBtn" class="close-btn">&times;</button>
             </div>
-            <div class="seat-legend">
-                <span class="legend-item"><span class="box free"></span> Vapaa</span>
-                <span class="legend-item"><span class="box reserved"></span> Varattu</span>
-                <span class="legend-item"><span class="box selected"></span> Valittu</span>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Valitse vapaa paikka alta:</p>
+            <div id="seatGrid" class="seat-grid">
+                <!-- Места рендерятся динамически -->
             </div>
-            <div id="seatContainer" class="seat-grid"></div>
-            <div class="modal-footer">
-                <span id="selectedSeatText">Ei valittu</span>
-                <button id="reserveBtn" class="primary-btn">Varaa valittu paikka</button>
-            </div>
+            <button id="reserveBtn" class="primary-btn" style="margin-top: 15px;">Varaa valittu paikka</button>
         </div>
     </div>
 

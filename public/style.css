@@ -11,7 +11,6 @@ body {
     min-height: 100vh;
 }
 
-/* Экран авторизации */
 .view-container {
     width: 100%;
     min-height: 100vh;
@@ -22,7 +21,6 @@ body {
     min-height: 100vh;
     align-items: center;
     justify-content: center;
-    /* Устанавливаем изображение фоном (файл должен называться bg-login.png и лежать в папке public) */
     background-image: url('bg-login.png');
     background-size: cover;
     background-position: center;
@@ -31,7 +29,6 @@ body {
     position: relative;
 }
 
-/* Полупрозрачный слой поверх картинки для читаемости формы */
 .auth-wrapper::before {
     content: '';
     position: absolute;
@@ -56,14 +53,8 @@ body {
     text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
 }
 
-.hero-illustration {
-    font-size: 5rem;
-    margin-bottom: 20px;
-    opacity: 0.9;
-}
-
 .auth-hero h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     margin-bottom: 10px;
     color: white;
 }
@@ -131,13 +122,30 @@ body {
     background: #5563c1;
 }
 
+/* Вторичная кнопка для переключения входа/регистрации */
+.secondary-btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    color: #667eea;
+    border: 1px solid #667eea;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.secondary-btn:hover {
+    background: #f0f4ff;
+}
+
 .error-msg {
     color: #e74c3c;
     margin-top: 10px;
     font-size: 0.9rem;
 }
 
-/* Шапка приложения */
 .app-header {
     background: white;
     padding: 15px 30px;
@@ -168,7 +176,6 @@ body {
     cursor: pointer;
 }
 
-/* Навигация приложения */
 .app-nav {
     background: white;
     display: flex;
@@ -210,7 +217,6 @@ body {
     border-radius: 6px;
 }
 
-/* Сетка карточек классов */
 .classrooms-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -243,7 +249,6 @@ body {
     margin-bottom: 15px;
 }
 
-/* Модальное окно выбора мест */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -312,7 +317,6 @@ body {
     color: white;
 }
 
-/* Таблицы бронирований */
 .table-responsive {
     background: white;
     border-radius: 8px;
@@ -336,7 +340,6 @@ th {
     font-weight: 600;
 }
 
-/* Админ-форма */
 .admin-form-card {
     background: white;
     padding: 25px;

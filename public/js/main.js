@@ -31,7 +31,6 @@ async function init() {
         closeModalBtn.addEventListener('click', () => {
             seatModal.style.display = 'none';
         });
-        // Закрытие по клику вне модального окна
         window.addEventListener('click', (e) => {
             if (e.target === seatModal) {
                 seatModal.style.display = 'none';
@@ -119,25 +118,33 @@ async function init() {
         });
     }
 
-    // 7. Переключение вкладок входа/регистрации на первом экране
+    // 7. Переключение вкладок и кнопок входа/регистрации
     const showLoginTab = document.getElementById('showLoginTab');
     const showRegisterTab = document.getElementById('showRegisterTab');
     const loginSection = document.getElementById('loginSection');
     const registerSection = document.getElementById('registerSection');
+    const switchToRegBtn = document.getElementById('switchToRegBtn');
+    const switchToLoginBtn = document.getElementById('switchToLoginBtn');
 
     if (showLoginTab && showRegisterTab && loginSection && registerSection) {
-        showLoginTab.addEventListener('click', () => {
+        const activateLogin = () => {
             showLoginTab.classList.add('active');
             showRegisterTab.classList.remove('active');
             loginSection.style.display = 'block';
             registerSection.style.display = 'none';
-        });
-        showRegisterTab.addEventListener('click', () => {
+        };
+
+        const activateRegister = () => {
             showRegisterTab.classList.add('active');
             showLoginTab.classList.remove('active');
             loginSection.style.display = 'none';
             registerSection.style.display = 'block';
-        });
+        };
+
+        showLoginTab.addEventListener('click', activateLogin);
+        showRegisterTab.addEventListener('click', activateRegister);
+        if (switchToRegBtn) switchToRegBtn.addEventListener('click', activateRegister);
+        if (switchToLoginBtn) switchToLoginBtn.addEventListener('click', activateLogin);
     }
 
     // 8. Установка сегодняшней даты по умолчанию
@@ -156,27 +163,24 @@ async function init() {
 }
 
 /**
- * Рендерит список классов в виде красивых карточек и связывает их с модальным окном схемы мест
+ * Рендерит список классов в виде карточек
  */
 async function loadClassroomsCards(user) {
-    // Вызываем оригинальную функцию загрузки в <select> для совместимости
     await loadClassrooms();
 
     const grid = document.getElementById('classroomsGrid');
     if (!grid) return;
     grid.innerHTML = '';
 
-    // Получаем список классов из селекта, который заполняет classroom.js
     const classroomSelect = document.getElementById('classroomSelect');
     if (!classroomSelect) return;
 
     Array.from(classroomSelect.options).forEach(option => {
-        if (!option.value) return; // Пропускаем placeholder
+        if (!option.value) return;
 
         const card = document.createElement('div');
         card.className = 'classroom-card';
 
-        // Определяем тип оборудования по имени класса (пример для красоты интерфейса)
         const name = option.textContent;
         let equipment = 'Projektori, Valkokangas';
         if (name.toLowerCase().includes('konferens') || name.toLowerCase().includes('sali')) {
@@ -193,7 +197,6 @@ async function loadClassroomsCards(user) {
             <button class="primary-btn" style="padding: 8px; font-size: 0.9rem;">Valitse paikat</button>
         `;
 
-        // Клик по карточке открывает модальное окно с выбором мест для этого класса
         card.addEventListener('click', () => {
             classroomSelect.value = option.value;
             loadSeats(Boolean(user));
@@ -208,5 +211,4 @@ async function loadClassroomsCards(user) {
     });
 }
 
-// Запуск инициализации
 init();
