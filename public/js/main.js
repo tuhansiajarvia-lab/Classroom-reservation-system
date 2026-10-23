@@ -1,6 +1,5 @@
 import { api } from './api.js';
 import { initAuthHandlers } from './auth.js';
-import { initAuthHandlers, handleLogin, handleRegister } from './auth.js';
 import { loadClassrooms, initClassroomView, setupAdminPanel } from './ui.js';
 import { loadReservations } from './reservation.js';
 
