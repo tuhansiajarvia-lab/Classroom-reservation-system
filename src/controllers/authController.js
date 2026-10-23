@@ -4,9 +4,9 @@ const bcrypt = require('bcryptjs');
 
 // Rekisteröinti
 exports.register = async (req, res) => {
-  const { nimi, sahkoposti, salasana } = req.body;
+  const { name, email, password } = req.body;
 
-  if (!nimi || !sahkoposti || !salasana) {
+  if (!name || !email || !password) {
     return res.status(400).json({
       message: 'Täytä kaikki kentät'
     });
@@ -53,9 +53,9 @@ exports.register = async (req, res) => {
 
 // Kirjautuminen
 exports.login = async (req, res) => {
-  const { sahkoposti, salasana } = req.body;
+  const { email, password } = req.body;
 
-  if (!sahkoposti || !salasana) {
+  if (!email || !password) {
     return res.status(400).json({
       message: 'Anna sähköposti ja salasana'
     });
@@ -65,7 +65,7 @@ exports.login = async (req, res) => {
     // Etsitään käyttäjä sähköpostilla
     const [users] = await pool.query(
       'SELECT * FROM Kayttajat WHERE sahkoposti = ?',
-      [sahkoposti]
+      [email]
     );
 
     if (users.length === 0) {
@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
 
     // Tarkistetaan salasana
     const isMatch = await bcrypt.compare(
-      salasana,
+      password,
       user.salasanan_hash
     );
 

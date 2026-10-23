@@ -49,10 +49,10 @@ export function initAuthHandlers() {
     if (loginBtn) {
         loginBtn.addEventListener('click', async () => {
             const email = document.getElementById('loginEmail').value;
-            const salasana = document.getElementById('loginPassword').value;
+            const password = document.getElementById('loginPassword').value;
 
             try {
-                const res = await api.login({ email, salasana });
+                const res = await api.login({ email, password });
                 if (res.ok) {
                     window.location.href = '/index.html';
                 } else {
@@ -60,7 +60,7 @@ export function initAuthHandlers() {
                     if (loginError) loginError.textContent = data.message || 'Virhe kirjautumisessa';
                 }
             } catch (e) {
-                if (loginError) loginError.textContent = 'Yhteysvirhe palvelimeen';
+                if (loginError) loginError.textContent = `Yhteysvirhe palvelimeen ${e}`;
             }
         });
     }
@@ -73,7 +73,7 @@ export function initAuthHandlers() {
             const salasana = document.getElementById('regPassword').value;
 
             try {
-                const res = await api.register({ nimi, email, salasana });
+                const res = await api.register({ nimi, email, password });
                 if (res.ok) {
                     alert('Rekisteröinti onnistui! Voit nyt kirjautua sisään.');
                     if (loginTabBtn) loginTabBtn.click();
@@ -82,7 +82,7 @@ export function initAuthHandlers() {
                     if (loginError) loginError.textContent = data.message || 'Virhe rekisteröitymisessä';
                 }
             } catch (e) {
-                if (loginError) loginError.textContent = 'Yhteysvirhe palvelimeen';
+                if (loginError) loginError.textContent = `Yhteysvirhe palvelimeen ${e}`;
             }
         });
     }

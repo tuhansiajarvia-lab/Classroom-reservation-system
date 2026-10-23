@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         // Проверяем текущего пользователя через API сессии
-        const userRes = await api.getCurrentUser();
+        const userRes = await api.checkAuth();
         
         if (userRes.ok) {
             const user = await userRes.json();
