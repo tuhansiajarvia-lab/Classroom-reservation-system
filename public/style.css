@@ -6,168 +6,151 @@
 }
 
 body {
-    background-color: #f4f7f6;
+    background-color: #f4f6f9;
     color: #333;
-    min-height: 100vh;
 }
 
-.view-container {
-    width: 100%;
-    min-height: 100vh;
-}
-
+/* ---------------- Auth Layout ---------------- */
 .auth-wrapper {
-    display: flex;
     min-height: 100vh;
-    align-items: center;
+    display: flex;
     justify-content: center;
-    background-image: url('bg-login.webp');
+    align-items: center;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('bg-login.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     padding: 20px;
-    position: relative;
 }
 
-.auth-wrapper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    z-index: 1;
-}
-
-.auth-hero,
 .auth-card {
-    position: relative;
-    z-index: 2;
-}
-
-.auth-hero {
-    color: white;
-    max-width: 550px;
-    margin-right: 60px;
-    text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
-}
-
-.auth-hero h1 {
-    font-size: 3.5rem;
-    margin-bottom: 15px;
-    color: white;
-}
-
-.auth-hero p {
-    font-size: 1.25rem;
-    color: #e0e0e0;
-}
-
-/* КАРТОЧКА ВХОДА  */
-.auth-card {
-    background: white;
-    padding: 60px 50px;
-    border-radius: 16px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     width: 100%;
     max-width: 800px;
+    padding: 40px;
 }
 
 .auth-tabs {
     display: flex;
-    margin-bottom: 35px;
-    border-bottom: 3px solid #eee;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #e0e0e0;
 }
 
-.tab-btn {
+.auth-tab {
     flex: 1;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
     background: none;
     border: none;
-    padding: 15px;
-    font-size: 1.25rem;
-    font-weight: 600;
     cursor: pointer;
-    color: #888;
-    transition: 0.3s;
+    color: #666;
+    border-bottom: 3px solid transparent;
 }
 
-.tab-btn.active {
-    color: #667eea;
-    border-bottom: 3px solid #667eea;
-    margin-bottom: -3px;
+.auth-tab.active {
+    color: #4a90e2;
+    border-bottom-color: #4a90e2;
 }
 
-/* УВЕЛИЧЕННЫЕ ПОЛЯ ВВОДА И ШРИФТЫ */
-.form-pane input {
-    width: 100%;
-    padding: 18px 20px;
+.auth-form-section h2 {
     margin-bottom: 20px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 1.15rem;
+    color: #2c3e50;
+    font-size: 1.8rem;
 }
 
-.form-pane input:focus {
-    border-color: #667eea;
-    outline: none;
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
 }
 
 .primary-btn {
     width: 100%;
-    padding: 18px;
-    background: #667eea;
+    padding: 12px;
+    background-color: #4a90e2;
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 1.2rem;
+    border-radius: 6px;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background-color 0.2s;
 }
 
 .primary-btn:hover {
-    background: #5563c1;
+    background-color: #357abd;
 }
 
-/* Вторичная кнопка */
-.secondary-btn {
-    width: 100%;
-    padding: 15px;
-    background: transparent;
-    color: #667eea;
-    border: 2px solid #667eea;
-    border-radius: 8px;
-    font-size: 1.1rem;
+.danger-btn {
+    padding: 8px 16px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.danger-btn:hover {
+    background-color: #c0392b;
+}
+
+.toggle-auth {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: #4a90e2;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-}
-
-.secondary-btn:hover {
-    background: #f0f4ff;
+    text-decoration: underline;
 }
 
 .error-msg {
     color: #e74c3c;
     margin-top: 15px;
-    font-size: 1rem;
+    text-align: center;
 }
 
-/* Стили основного приложения (остались без изменений) */
+/* ---------------- App Header (Centered Logo) ---------------- */
 .app-header {
     background: white;
     padding: 15px 30px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: relative;
 }
 
 .logo {
     font-weight: bold;
-    font-size: 1.2rem;
-    color: #667eea;
+    font-size: 1.5rem;
+    color: #4a90e2;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .user-info {
@@ -176,54 +159,42 @@ body {
     gap: 15px;
 }
 
-.logout-btn {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
+/* ---------------- Navigation ---------------- */
 .app-nav {
-    background: white;
     display: flex;
+    background: white;
+    border-bottom: 1px solid #ddd;
     padding: 0 30px;
-    border-bottom: 1px solid #e1e1e1;
 }
 
 .nav-tab {
+    padding: 15px 20px;
     background: none;
     border: none;
-    padding: 15px 20px;
+    border-bottom: 3px solid transparent;
     font-size: 1rem;
-    cursor: pointer;
+    font-weight: 600;
     color: #666;
-    font-weight: 500;
+    cursor: pointer;
 }
 
 .nav-tab.active {
-    color: #667eea;
-    border-bottom: 3px solid #667eea;
+    color: #4a90e2;
+    border-bottom-color: #4a90e2;
 }
 
-.app-content {
+/* ---------------- Content & Grids ---------------- */
+.container {
     max-width: 1200px;
     margin: 30px auto;
     padding: 0 20px;
 }
 
-.section-header {
+.toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-}
-
-.date-picker {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    margin-bottom: 25px;
 }
 
 .classrooms-grid {
@@ -236,20 +207,19 @@ body {
     background: white;
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
-    border-left: 5px solid #667eea;
 }
 
 .classroom-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .classroom-card h3 {
     margin-bottom: 10px;
-    color: #333;
+    color: #2c3e50;
 }
 
 .classroom-meta {
@@ -258,16 +228,62 @@ body {
     margin-bottom: 15px;
 }
 
-.modal-overlay {
+/* ---------------- Tables & Badges ---------------- */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.status-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-top: 10px;
+}
+
+.status-table th, .status-table td {
+    padding: 14px 18px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.status-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge.free {
+    background-color: #e6f4ea;
+    color: #137333;
+}
+
+.badge.booked {
+    background-color: #fef7e0;
+    color: #b06000;
+}
+
+/* ---------------- Modal ---------------- */
+.modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     z-index: 1000;
 }
 
@@ -277,90 +293,20 @@ body {
     border-radius: 12px;
     width: 90%;
     max-width: 600px;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+    position: relative;
 }
 
 .close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 1.8rem;
     cursor: pointer;
 }
 
 .seat-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 10px;
-    overflow-y: auto;
-    padding: 15px 0;
-    max-height: 350px;
-}
-
-.seat {
-    padding: 10px;
-    background: #e2e8f0;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.seat.reserved {
-    background: #cbd5e1;
-    color: #94a3b8;
-    cursor: not-allowed;
-}
-
-.seat.selected {
-    background: #48bb78;
-    color: white;
-}
-
-.table-responsive {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-}
-
-th {
-    background: #f8fafc;
-    font-weight: 600;
-}
-
-.admin-form-card {
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    max-width: 500px;
-}
-
-.admin-form-card input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    margin: 20px 0;
 }

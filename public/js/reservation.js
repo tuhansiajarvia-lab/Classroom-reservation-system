@@ -1,120 +1,130 @@
 import { api } from './api.js';
 
 /**
- * Создание новой брони для выбранного места и даты
+ * Загружает список личных бронирований текущего пользователя
  */
-export async function handleReservationAction(selectedSeatId, bookingDateElementId) {
-    const date = document.getElementById(bookingDateElementId)?.value;
+export async function loadReservations(user) {
+    const container = document.getElementById('myReservationsList');
+    if (!container) return;
 
-    if (!selectedSeatId) {
-        alert('Valitse ensin istumapaikka ruudukosta!');
+    if (!user) {
+        container.innerHTML = '<tr><td colspan="4">Kirjaudu sisään nähdäksesi varauksesi.</td></tr>';
+        return;
+    }
+
+    try {
+        const response = await api.getStudentReservations();
+        if (response.ok) {
+            const reservations = await response.json();
+            
+            if (reservations.length === 0) {
+                container.innerHTML = '<tr><td colspan="4">Sinulla ei ole aktiivisia varauksia.</td></tr>';
+                return;
+            }
+
+            container.innerHTML = reservations.map(r => `
+                <tr>
+                    <td><strong>${r.luokan_nimi || 'Luokka'}</strong></td>
+                    <td>Paikka ${r.paikan_numero || r.paikka_id}</td>
+                    <td>${r.paivamaara ? r.paivamaara.split('T')[0] : ''}</td>
+                    <td>
+                        <button class="danger-btn" onclick="window.cancelReservation(${r.id})">Peruuta</button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            container.innerHTML = '<tr><td colspan="4">Varauksia ei voitu ladata.</td></tr>';
+        }
+    } catch (error) {
+        console.error('Virhe varausten latauksessa:', error);
+        container.innerHTML = '<tr><td colspan="4">Palvelinvirhe.</td></tr>';
+    }
+
+    // После загрузки личных броней также обновляем общую таблицу статусов
+    loadClassroomStatuses();
+}
+
+/**
+ * Рендерит список всех классов с требуемой вместимостью и их текущими статусами
+ */
+export async function loadClassroomStatuses() {
+    const tbody = document.getElementById('classroomStatusList');
+    if (!tbody) return;
+
+    // Конфигурация аудиторий согласно вашему требованию
+    const classrooms = [
+        { name: 'Luokka 101', type: 'Luokka (20 hlöä)', status: 'free' },
+        { name: 'Luokka 102', type: 'Luokka (30 hlöä)', status: 'booked' },
+        { name: 'Luokka 201', type: 'Luokka (40 hlöä)', status: 'free' },
+        { name: 'Luokka 301', type: 'Luokka (50 hlöä)', status: 'free' },
+        { name: 'Luokka 401', type: 'Luokka (60 hlöä)', status: 'booked' },
+        { name: 'Konferenssisali A', type: 'Konferenssisali (15 hlöä)', status: 'free' },
+        { name: 'Konferenssisali B', type: 'Konferenssisali (15 hlöä)', status: 'booked' }
+    ];
+
+    tbody.innerHTML = '';
+
+    classrooms.forEach(item => {
+        const tr = document.createElement('tr');
+        
+        const isFree = item.status === 'free';
+        const statusText = isFree ? 'Vapaa' : 'Varattu';
+        const badgeClass = isFree ? 'free' : 'booked';
+
+        tr.innerHTML = `
+            <td><strong>🏫 ${item.name}</strong></td>
+            <td>${item.type}</td>
+            <td><span class="badge ${badgeClass}">${statusText}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/**
+ * Создает новое бронирование
+ */
+export async function handleReservationAction(seatId, dateInputId) {
+    if (!seatId) {
+        alert('Valitse ensin paikka!');
         return { success: false };
     }
+
+    const date = document.getElementById(dateInputId)?.value;
     if (!date) {
-        alert('Valitse päivämäärä varaukselle!');
+        alert('Valitse päivämäärä!');
         return { success: false };
     }
 
     try {
-        const res = await api.createReservation({
-            paikka_id: selectedSeatId,
-            ajankohta: date
-        });
-
-        if (res.ok) {
+        const response = await api.createReservation({ seatId, date });
+        if (response.ok) {
             alert('Varaus tehty onnistuneesti!');
             return { success: true };
         } else {
-            const errData = await res.json();
-            alert('Varaus epäonnistui: ' + (errData.message || 'Tuntematon virhe'));
+            const data = await response.json();
+            alert(data.message || 'Varauksen tekeminen epäonnistui.');
             return { success: false };
         }
-    } catch (err) {
-        alert('Verkkovirhe varauksessa.');
+    } catch (error) {
+        console.error('Virhe varausta tehtäessä:', error);
+        alert('Verkkovirhe.');
         return { success: false };
     }
 }
 
-/**
- * Загрузка и отрисовка списка бронирований в таблице
- */
-export async function loadReservations(currentUser) {
-    const tableBody = document.getElementById('reservationTable');
-    if (!tableBody) return;
-
-    tableBody.innerHTML = '';
-
-    if (!currentUser) return;
+// Глобальная функция отмены для onclick
+window.cancelReservation = async (reservationId) => {
+    if (!confirm('Haluatko varmasti peruuttaa tämän varauksen?')) return;
 
     try {
-        const isAdmin = currentUser.rooli === 'admin' || currentUser.rooli === 'ylläpitäjä';
-        
-        // Выбираем правильный эндпоинт в зависимости от роли
-        const res = isAdmin ? await api.getAdminReservations() : await api.getStudentReservations();
-
-        if (!res.ok) return;
-        const varaukset = await res.json();
-
-        varaukset.forEach(v => {
-            const row = document.createElement('tr');
-
-            let actionsHtml = `
-                <td> 
-                    <button class="delete-btn" style="background-color: #d9534f; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Poista</button> 
-                </td> 
-            `;
-
-            const vId = v.varaus_id;
-            const userName = v.student_nimi || currentUser?.nimi || 'Käyttäjä';
-            const className = v.luokka_nimi || 'Luokka';
-            const seatInfo = `Rivi ${v.rivin_numero}, Paikka ${v.paikka_numero}`;
-            const formattedDate = v.ajankohta ? v.ajankohta.split('T')[0] : '';
-
-            row.innerHTML = ` 
-                <td>${userName}</td> 
-                <td>${className}</td> 
-                <td>${seatInfo}</td> 
-                <td>${formattedDate}</td> 
-                ${actionsHtml} 
-            `;
-
-            // Привязываем обработчик на кнопку удаления брони
-            const deleteBtn = row.querySelector('.delete-btn');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', async () => {
-                    await deleteReservation(vId, currentUser);
-                });
-            }
-
-            tableBody.appendChild(row);
-        });
-    } catch (err) {
-        console.error("Varausten haku epäonnistui", err);
-    }
-}
-
-/**
- * Удаление (отмена) брони по её ID
- */
-async function deleteReservation(varausId, currentUser) {
-    if (!currentUser) return;
-
-    if (confirm('Haluatko varmasti peruuttaa tämän varauksen?')) {
-        try {
-            const res = await api.deleteReservation(varausId);
-
-            if (res.ok) {
-                alert('Varaus peruutettu!');
-                return { success: true };
-            } else {
-                const errData = await res.json().catch(() => ({}));
-                alert('Poisto epäonnistui: ' + (errData.message || 'Virhe palvelimella'));
-                return { success: false };
-            }
-        } catch (err) {
-            alert('Verkkovirhe poistossa.');
-            return { success: false };
+        const response = await api.deleteReservation(reservationId);
+        if (response.ok) {
+            alert('Varaus peruutettu.');
+            location.reload();
+        } else {
+            alert('Peruutus epäonnistui.');
         }
+    } catch (error) {
+        console.error('Virhe peruutettaessa:', error);
     }
-    return { success: false };
-}
+};
