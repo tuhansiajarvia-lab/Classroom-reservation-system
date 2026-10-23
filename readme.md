@@ -68,3 +68,4 @@ Admin's account data
 name: Vadim Chupakhin
 @: adminuser@gmail.com
 psw: 123qwe_
+
