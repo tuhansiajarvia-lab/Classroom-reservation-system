@@ -3,88 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Varausjärjestelmä</title>
+    <title>Luokat ja Varaukset | Varausjärjestelmä</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Экран авторизации и регистрации -->
-    <div id="authContainer" class="auth-wrapper">
-        <div class="auth-card">
-            <div class="auth-tabs">
-                <button id="showLoginTab" class="auth-tab active">Kirjaudu sisään</button>
-                <button id="showRegisterTab" class="auth-tab">Rekisteröidy</button>
-            </div>
+    <!-- Шапка с центрированным логотипом -->
+    <header class="app-header">
+        <h1 class="logo">Varausjärjestelmä</h1>
+        <div class="user-info">
+            <span id="userNameDisplay">Käyttäjä</span>
+            <button id="logoutBtn" class="danger-btn">Kirjaudu ulos</button>
+        </div>
+    </header>
 
-            <!-- Форма входа -->
-            <div id="loginSection" class="auth-form-section">
-                <h2>Kirjaudu sisään</h2>
-                <div class="form-group">
-                    <label for="loginEmail">Sähköposti</label>
-                    <input type="email" id="loginEmail" placeholder="esimerkki@domain.fi">
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Salasana</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••">
-                </div>
-                <button id="loginBtn" class="primary-btn">Kirjaudu</button>
-                <div class="toggle-auth">
-                    <span>Eikö sinulla ole tiliä? </span>
-                    <button id="switchToRegBtn" class="link-btn">Rekisteröidy tästä</button>
-                </div>
-            </div>
+    <!-- Навигация -->
+    <nav class="app-nav">
+        <a href="index.html" class="nav-tab active">Luokat ja Varaukset</a>
+        <a href="reservations.html" class="nav-tab">Omat varaukset</a>
+    </nav>
 
-            <!-- Форма регистрации -->
-            <div id="registerSection" class="auth-form-section" style="display: none;">
-                <h2>Rekisteröidy käyttäjäksi</h2>
-                <div class="form-group">
-                    <label for="regName">Nimi</label>
-                    <input type="text" id="regName" placeholder="Matti Meikäläinen">
-                </div>
-                <div class="form-group">
-                    <label for="regEmail">Sähköposti</label>
-                    <input type="email" id="regEmail" placeholder="esimerkki@domain.fi">
-                </div>
-                <div class="form-group">
-                    <label for="regPassword">Salasana</label>
-                    <input type="password" id="regPassword" placeholder="••••••••">
-                </div>
-                <button id="registerBtn" class="primary-btn">Rekisteröidy</button>
-                <div class="toggle-auth">
-                    <span>Onko sinulla jo tili? </span>
-                    <button id="switchToLoginBtn" class="link-btn">Kirjaudu sisään</button>
-                </div>
+    <!-- Основной контент -->
+    <main class="container">
+        <div class="toolbar">
+            <h2>Valitse luokkahuone</h2>
+            <div class="date-picker-group">
+                <label for="bookingDate">Päivämäärä:</label>
+                <input type="date" id="bookingDate">
             </div>
+        </div>
 
-            <p id="loginError" class="error-msg"></p>
+        <!-- Скрытый системный селект для связки с JS -->
+        <select id="classroomSelect" style="display: none;"></select>
+
+        <!-- Карточки аудиторий -->
+        <div id="classroomsGrid" class="classrooms-grid"></div>
+
+        <!-- Админ-панель добавления классов -->
+        <div id="adminSection" style="display: none;" class="admin-panel">
+            <h3>Ylläpito: Lisää uusi luokkahuone</h3>
+            <div class="admin-form">
+                <input type="text" id="newClassroomName" placeholder="Luokan nimi (esim. Luokka 101)">
+                <input type="number" id="newClassroomCapacity" placeholder="Paikkojen määrä">
+                <button id="addClassroomBtn" class="primary-btn">Lisää luokka</button>
+            </div>
+            <p id="adminClassroomMessage"></p>
+        </div>
+    </main>
+
+    <!-- Модальное окно карты мест -->
+    <div id="seatModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span id="closeModalBtn" class="close-btn">&times;</span>
+            <h2 id="modalClassroomTitle">Paikkakartta</h2>
+            <div id="seatGrid" class="seat-grid"></div>
+            <div class="modal-actions">
+                <button id="reserveBtn" class="primary-btn">Varaa valittu paikka</button>
+            </div>
         </div>
     </div>
 
-    <!-- Основное приложение (после входа) -->
-    <div id="mainView" style="display: none;">
-        <!-- Шапка с заглавием по центру -->
-        <header class="app-header">
-            <h1 class="logo">Varausjärjestelmä</h1>
-            <div class="user-info">
-                <span id="userNameDisplay">Käyttäjä</span>
-                <button id="logoutBtn" class="danger-btn">Kirjaudu ulos</button>
-            </div>
-        </header>
-
-        <!-- Навигация по вкладкам -->
-        <nav class="app-nav">
-            <button class="nav-tab active" data-target="classroomsTab">Luokat ja Varaukset</button>
-            <button class="nav-tab" data-target="reservationsTab">Omat varaukset</button>
-        </nav>
-
-        <!-- Вкладка 1: Список аудиторий и выбор мест -->
-        <main id="classroomsTab" class="tab-content container">
-            <div class="toolbar">
-                <h2>Valitse luokkahuone</h2>
-                <div class="date-picker-group">
-                    <label for="bookingDate">Päivämäärä:</label>
-                    <input type="date" id="bookingDate">
-                </div>
-            </div>
-
-            <!-- Скрытый системный селект для связки с JS -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

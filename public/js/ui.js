@@ -2,18 +2,18 @@
  * Обновляет видимость экранов и элементов интерфейса в зависимости от авторизации пользователя
  */
 export function updateAuthUI(currentUser) {
-    const authView = document.getElementById('authView');
+    const authContainer = document.getElementById('authContainer'); // Исправлено с authView на authContainer
     const mainView = document.getElementById('mainView');
-    const loggedUserText = document.getElementById('loggedUserText');
+    const userNameDisplay = document.getElementById('userNameDisplay'); // Исправлено под ID из index.html
     const adminTabBtn = document.getElementById('adminTabBtn');
 
     if (currentUser) {
         // Показываем основной экран приложения, скрываем экран входа
-        if (authView) authView.style.display = 'none';
+        if (authContainer) authContainer.style.display = 'none';
         if (mainView) mainView.style.display = 'block';
 
-        if (loggedUserText) {
-            loggedUserText.textContent = `${currentUser.nimi} (${currentUser.rooli})`;
+        if (userNameDisplay) {
+            userNameDisplay.textContent = `${currentUser.nimi || currentUser.email} (${currentUser.rooli || 'student'})`;
         }
 
         // Показываем вкладку администратора, если у пользователя соответствующая роль
@@ -23,7 +23,7 @@ export function updateAuthUI(currentUser) {
         }
     } else {
         // Показываем экран входа, скрываем основное приложение
-        if (authView) authView.style.display = 'block';
+        if (authContainer) authContainer.style.display = 'flex'; // Используем flex для центрирования бэкграунда
         if (mainView) mainView.style.display = 'none';
         if (adminTabBtn) {
             adminTabBtn.style.display = 'none';

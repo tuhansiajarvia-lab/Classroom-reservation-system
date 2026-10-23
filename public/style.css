@@ -12,7 +12,7 @@ body {
 
 /* ---------------- Auth Layout ---------------- */
 .auth-wrapper {
-    min-height: 100vh;
+   min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,15 +21,48 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     padding: 20px;
+    width: 100vw;
+    position: fixed; /* Фиксируем поверх всего до авторизации */
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }
 
+.auth-container-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Стили для текста над окном */
+.auth-header-text {
+    text-align: center;
+    color: white;
+    margin-bottom: 25px;
+}
+
+.auth-header-text h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.auth-header-text p {
+    font-size: 1.1rem;
+    color: #f0f0f0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Карточка авторизации */
 .auth-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(8px);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     width: 100%;
-    max-width: 800px;
     padding: 40px;
 }
 

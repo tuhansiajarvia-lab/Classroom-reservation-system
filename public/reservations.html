@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omat varaukset | Varausjärjestelmä</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Шапка с центрированным логотипом -->
+    <header class="app-header">
+        <h1 class="logo">Varausjärjestelmä</h1>
+        <div class="user-info">
+            <span id="userNameDisplay">Käyttäjä</span>
+            <button id="logoutBtn" class="danger-btn">Kirjaudu ulos</button>
+        </div>
+    </header>
+
+    <!-- Навигация -->
+    <nav class="app-nav">
+        <a href="index.html" class="nav-tab">Luokat ja Varaukset</a>
+        <a href="reservations.html" class="nav-tab active">Omat varaukset</a>
+    </nav>
+
+    <!-- Контент -->
+    <main class="container">
+        <h2>Omat varaukset</h2>
+        <div class="table-responsive">
+            <table class="status-table">
+                <thead>
+                    <tr>
+                        <th>Luokka</th>
+                        <th>Paikka</th>
+                        <th>Päivämäärä</th>
+                        <th>Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody id="myReservationsList">
+                    <!-- Динамические брони пользователя -->
+                </tbody>
+            </table>
+        </div>
+
+        <h2 style="margin-top: 40px;">Kaikkien luokkien tila</h2>
+        <p style="color: #666; margin-bottom: 15px;">Luettelo kampuksen luokkahuoneista ja niiden reaaliaikainen tilanne:</p>
+
+        <div class="table-responsive">
+            <table class="status-table">
+                <thead>
+                    <tr>
+                        <th>Luokka</th>
+                        <th>Tyyppi / Kapasiteetti</th>
+                        <th>Tila</th>
+                    </tr>
+                </thead>
+                <tbody id="classroomStatusList">
+                    <!-- Динамический список классов со статусами -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

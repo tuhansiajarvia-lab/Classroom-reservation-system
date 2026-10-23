@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirjaudu | Varausjärjestelmä</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="authContainer" class="auth-wrapper">
+        <div class="auth-container-center">
+            <div class="auth-header-text">
+                <h1>Luokkahuoneiden varausjärjestelmä</h1>
+                <p>Varaa tilat ja luokat helposti oppilaitoksessasi.</p>
+            </div>
+
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button id="showLoginTab" class="auth-tab active">Kirjaudu sisään</button>
+                    <button id="showRegisterTab" class="auth-tab">Rekisteröidy</button>
+                </div>
+
+                <!-- Форма входа -->
+                <div id="loginSection" class="auth-form-section">
+                    <h2>Kirjaudu sisään</h2>
+                    <div class="form-group">
+                        <label for="loginEmail">Sähköposti</label>
+                        <input type="email" id="loginEmail" placeholder="esimerkki@domain.fi">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Salasana</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                    </div>
+                    <button id="loginBtn" class="primary-btn">Kirjaudu</button>
+                    <div class="toggle-auth">
+                        <span>Eikö sinulla ole tiliä? </span>
+                        <button id="switchToRegBtn" class="link-btn">Rekisteröidy tästä</button>
+                    </div>
+                </div>
+
+                <!-- Форма регистрации -->
+                <div id="registerSection" class="auth-form-section" style="display: none;">
+                    <h2>Rekisteröidy käyttäjäksi</h2>
+                    <div class="form-group">
+                        <label for="regName">Nimi</label>
+                        <input type="text" id="regName" placeholder="Matti Meikäläinen">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Sähköposti</label>
+                        <input type="email" id="regEmail" placeholder="esimerkki@domain.fi">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Salasana</label>
+                        <input type="password" id="regPassword" placeholder="••••••••">
+                    </div>
+                    <button id="registerBtn" class="primary-btn">Rekisteröidy</button>
+                    <div class="toggle-auth">
+                        <span>Onko sinulla jo tili? </span>
+                        <button id="switchToLoginBtn" class="link-btn">Kirjaudu sisään</button>
+                    </div>
+                </div>
+
+                <p id="loginError" class="error-msg"></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
