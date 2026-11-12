@@ -1,0 +1,61 @@
+/* Стили для авторизации и регистрации */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+}
+
+.auth-container-center {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+.auth-header-text {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.auth-header-text h1 {
+    font-size: 1.6rem;
+    margin-bottom: 5px;
+}
+
+.auth-header-text p {
+    font-size: 0.95rem;
+    color: #ecf0f1;
+}
+
+.auth-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.auth-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #7f8c8d;
+    transition: color 0.2s;
+}
+
+.auth-tab.active {
+    color: #3498db;
+    border-bottom: 2px solid #3498db;
+    margin-bottom: -2px;
+}

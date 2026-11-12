@@ -1,0 +1,67 @@
+/* Шапка сайта и навигация */
+.app-header {
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.app-nav {
+    background-color: #34495e;
+    padding: 10px 30px;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-tab {
+    color: #bdc3c7;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.nav-tab:hover, .nav-tab.active {
+    background-color: #2c3e50;
+    color: #fff;
+}
+
+/* Контейнеры и сетка классов */
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.classrooms-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .classrooms-grid {
+        grid-template-columns: 1fr;
+    }
+}
