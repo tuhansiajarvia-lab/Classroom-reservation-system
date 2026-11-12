@@ -31,6 +31,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
     const isLoginPage = path.includes('login.html') || path === '/';
 
+    // Если мы на странице логина, инициализируем формы сразу, не дожидаясь ответа checkAuth
+    if (isLoginPage) {
+        initAuthHandlers();
+    }
+
     try {
         // Проверяем текущего пользователя через API сессии
         const userRes = await api.checkAuth();
@@ -80,17 +85,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Защищенные страницы отправляют на логин
                 window.location.href = '/login.html';
                 return;
-            } else {
-                // Находимся на странице входа — инициализируем формы
-                initAuthHandlers();
             }
         }
     } catch (error) {
         console.error('Virhe sovelluksen alustuksessa:', error);
         if (!isLoginPage) {
             window.location.href = '/login.html';
-        } else {
-            initAuthHandlers();
         }
     }
 });

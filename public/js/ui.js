@@ -21,9 +21,53 @@ export function updateAuthUI(currentUser) {
 /**
  * Загружает и отображает список аудиторий
  */
-export function loadClassrooms() {
-    // Ваша логика загрузки классов (если она уже реализована, оставьте её здесь)
-    console.loadClassrooms?.();
+export async function loadClassrooms() {
+    const gridContainer = document.getElementById('classroomsGrid');
+    if (!gridContainer) return;
+
+    try {
+        // Запрос к вашему API для получения списка классов
+        const response = await api.getClassrooms();
+        
+        if (response.ok) {
+            const classrooms = await response.json();
+            
+            // Очищаем контейнер перед заполнением
+            gridContainer.innerHTML = '';
+
+            if (!classrooms || classrooms.length === 0) {
+                gridContainer.innerHTML = '<p style="color: #666; grid-column: 1 / -1;">Ei luokkahuoneita saatavilla.</p>';
+                return;
+            }
+
+            // Создаем карточку для каждого класса
+            classrooms.forEach(room => {
+                const card = document.createElement('div');
+                card.className = 'classroom-card';
+                
+                card.innerHTML = `
+                    <h3>${room.nimi || room.name}</h3>
+                    <p class="classroom-meta">Kapasiteetti: ${room.kapasiteetti || room.capacity || 'N/A'}</p>
+                    <p class="classroom-meta">Kapasiteetti: ${room.koko} hlö</p>
+                    <p class="classroom-details">Rivit: ${room.rivit} | Paikat rivillä: ${room.paikat}</p>
+                `;
+
+                // При клике на карточку можно добавить открытие модального окна бронирования
+                card.addEventListener('click', () => {
+                    // Если у вас реализована функция открытия модального окна для выбранного класса:
+                    if (typeof window.openClassroomModal === 'function') {
+                        window.openClassroomModal(room);
+                    }
+                });
+
+                gridContainer.appendChild(card);
+            });
+        } else {
+            console.error('Virhe haettaessa luokkeja palvelimelta');
+        }
+    } catch (error) {
+        console.error('Virhe luokkien latauksessa:', error);
+    }
 }
 
 /**
