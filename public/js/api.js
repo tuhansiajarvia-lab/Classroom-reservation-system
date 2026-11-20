@@ -44,6 +44,6 @@ export const api = {
     // Бронирования
     getStudentReservations: () => apiRequest('/reservations/my'),
     getAdminReservations: () => apiRequest('/admin/reservations'),
-    createReservation: (reservationData) => apiRequest('/reservations', { method: 'POST', body: reservationData }),
+    createReservation: (reservationData) => apiёRequest('/reservations', { method: 'POST', body: reservationData }),
     deleteReservation: (reservationId) => apiRequest(`/reservations/${reservationId}`, { method: 'DELETE' })
 };

@@ -43,22 +43,36 @@
         <div id="adminSection" style="display: none;" class="admin-panel">
             <h3>Ylläpito: Lisää uusi luokkahuone</h3>
             <div class="admin-form">
-                <input type="text" id="newClassroomName" placeholder="Luokan nimi (esim. Luokka 101)">
-                <input type="number" id="newClassroomCapacity" placeholder="Paikkojen määrä">
-                <button id="addClassroomBtn" class="primary-btn">Lisää luokka</button>
+                <input type="text" id="adminClassroomName" placeholder="Luokan nimi (esim. Alfa)" />
+                <input type="number" id="adminClassroomRows" placeholder="Rivien määrä" min="1" />
+                <input type="number" id="adminClassroomSeats" placeholder="Paikkojen määrä rivillä" min="1" />
+                <button type="button" id="addClassroomBtn">Lisää luokka</button>
             </div>
             <p id="adminClassroomMessage"></p>
         </div>
     </main>
 
-    <!-- Модальное окно карты мест -->
+    <!-- Модальное окно бронирования класса (схема слева, информация справа) -->
     <div id="seatModal" class="modal" style="display: none;">
-        <div class="modal-content">
+        <div class="modal-content classroom-modal-content">
             <span id="closeModalBtn" class="close-btn">&times;</span>
-            <h2 id="modalClassroomTitle">Paikkakartta</h2>
-            <div id="seatGrid" class="seat-grid"></div>
-            <div class="modal-actions">
-                <button id="reserveBtn" class="primary-btn">Varaa valittu paikka</button>
+            <h2 id="modalClassroomTitle">Luokan varaus</h2>
+
+            <div class="classroom-modal-body">
+                <div class="classroom-diagram-panel" id="classroomDiagram"></div>
+
+                <div class="classroom-details-panel">
+                    <ul class="classroom-specs-list">
+                        <li><strong>Paikkojen määrä:</strong> <span id="modalSeatsCount">-</span></li>
+                        <li><strong>Projektori:</strong> <span id="modalProjectorStatus">Kyllä (Full HD)</span></li>
+                        <li><strong>Interaktiivinen taulu:</strong> <span id="modalSmartboardStatus">Kyllä (Smart Board)</span></li>
+                        <li><strong>Päivämäärä:</strong> <span id="modalBookingDate">-</span></li>
+                    </ul>
+
+                    <div class="modal-actions">
+                        <button type="button" id="reserveBtn" class="primary-btn">Varaa luokka</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

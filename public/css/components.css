@@ -7,6 +7,7 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
+    cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -169,4 +170,196 @@
 .status-table th {
     background-color: #f8f9fa;
     font-weight: 600;
+}
+
+/* Сетка мест в модальном окне */
+.seat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.seat {
+    padding: 10px 8px;
+    border: 1px solid #3498db;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #2c3e50;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.seat:hover:not(:disabled) {
+    background-color: #ebf5fb;
+}
+
+.seat.selected {
+    background-color: #3498db;
+    color: #ffffff;
+    font-weight: 600;
+}
+.seat.reserved,
+.seat:disabled {
+    background-color: #e74c3c;
+    border-color: #c0392b;
+    color: #ffffff;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Карточки аудиторий */
+.classroom-card {
+    cursor: pointer;
+}
+
+/* Модальное окно класса: схема слева, информация справа */
+.classroom-modal-content {
+    max-width: 760px;
+    width: 92%;
+}
+
+.classroom-modal-body {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 24px;
+    margin-top: 18px;
+    align-items: start;
+}
+
+@media (max-width: 680px) {
+    .classroom-modal-body {
+        grid-template-columns: 1fr;
+    }
+}
+
+.classroom-diagram-panel {
+    background: #f4f7fa;
+    border: 1px solid #d8e1ea;
+    border-radius: 8px;
+    padding: 14px;
+}
+
+.diagram-room-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.diagram-front-bar {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.diagram-board {
+    flex: 1;
+    background: #2c3e50;
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 7px 8px;
+    border-radius: 4px;
+}
+
+.diagram-projector {
+    background: #3498db;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 7px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.diagram-teacher-zone {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #55606e;
+    background: #e6ecf2;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.diagram-rows-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.diagram-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.diagram-desk {
+    width: 24px;
+    height: 12px;
+    background: #ffffff;
+    border: 1px solid #8fa3b8;
+    border-radius: 2px;
+}
+
+.classroom-details-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.classroom-specs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: #2c3e50;
+}
+
+.classroom-specs-list li {
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eef2f6;
+}
+
+.badge-varattu {
+    display: inline-block;
+    background-color: #ff9800;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.danger-btn {
+    background-color: #d9534f;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.classroom-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.badge-varattu {
+    display: inline-block;
+    background-color: #ff9800;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
 }

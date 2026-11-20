@@ -4,7 +4,9 @@ const bcrypt = require('bcryptjs');
 
 // Rekisteröinti
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const name = req.body.name || req.body.nimi;
+  const email = req.body.email || req.body.sahkoposti;
+  const password = req.body.password || req.body.salasana;
 
   if (!name || !email || !password) {
     return res.status(400).json({
@@ -16,7 +18,7 @@ exports.register = async (req, res) => {
     // Tarkistetaan, onko käyttäjä jo olemassa
     const [existingUser] = await pool.query(
       'SELECT * FROM Kayttajat WHERE sahkoposti = ?',
-      [sahkoposti]
+      [email]
     );
 
     if (existingUser.length > 0) {
@@ -26,21 +28,20 @@ exports.register = async (req, res) => {
     }
 
     // Salataan salasana
-    const hashedPassword = await bcrypt.hash(salasana, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Tallennetaan salasana oikeaan sarakkeeseen
     const [result] = await pool.query(
       `INSERT INTO Kayttajat
        (nimi, sahkoposti, salasanan_hash, rooli)
        VALUES (?, ?, ?, ?)`,
-      [nimi, sahkoposti, hashedPassword, 'student']
+      [name, email, hashedPassword, 'student']
     );
 
     res.status(201).json({
       message: 'Rekisteröinti onnistui',
       userId: result.insertId
     });
-
   } catch (error) {
     console.error('Virhe rekisteröinnissä:', error);
 
@@ -53,28 +54,29 @@ exports.register = async (req, res) => {
 
 // Kirjautuminen
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+    const email = req.body.email || req.body.sahkoposti;
+    const password = req.body.password || req.body.salasana;
 
-  if (!email || !password) {
-    return res.status(400).json({
-      message: 'Anna sähköposti ja salasana'
-    });
-  }
-
-  try {
-    // Etsitään käyttäjä sähköpostilla
-    const [users] = await pool.query(
-      'SELECT * FROM Kayttajat WHERE sahkoposti = ?',
-      [email]
-    );
-
-    if (users.length === 0) {
-      return res.status(400).json({
-        message: 'Virheellinen sähköposti tai salasana'
-      });
+    if (!email || !password) {
+        return res.status(400).json({
+            message: 'Anna sähköposti ja salasana'
+        });
     }
 
-    const user = users[0];
+    try {
+        // Etsitään käyttäjä sähköpostilla
+        const [users] = await pool.query(
+            'SELECT * FROM Kayttajat WHERE sahkoposti = ?',
+            [email]
+        );
+
+        if (users.length === 0) {
+            return res.status(400).json({
+                message: 'Virheellinen sähköposti tai salasana'
+            });
+        }
+
+        const user = users[0];
 
     // Tarkistetaan salasana
     const isMatch = await bcrypt.compare(

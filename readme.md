@@ -59,13 +59,14 @@ classroom-reservation-backend/
 
 Test user's account data
 
-name: Test User
-@: testuser@gmail.com
-psw: 123qwe
+Oppilaan tili:
 
-Admin's account data
+Oppilas Yksi
+oppilas@test.fi
+123qwe
 
-name: Vadim Chupakhin
-@: adminuser@gmail.com
-psw: 123qwe_
+Opettajän tili:
+Opettäjä Yksi
+opettaja@test.fi
+123qwe_
 

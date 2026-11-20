@@ -1,9 +1,20 @@
 import { api } from './api.js';
+import { handleAddClassroom } from './classroom.js';
+
+let currentAuthUser = null;
+
+function isAdminUser(user) {
+    const actualUser = user?.user || user;
+    const role = String(actualUser?.rooli || actualUser?.role || '').toLowerCase();
+    return role === 'admin' || role === 'ylläpitäjä';
+}
 
 /**
  * Обновляет видимость элементов интерфейса (например, имя пользователя или админ-панель)
  */
 export function updateAuthUI(currentUser) {
+    currentAuthUser = currentUser || null;
+
     const userNameDisplay = document.getElementById('userNameDisplay');
     const adminSection = document.getElementById('adminSection');
 
@@ -12,8 +23,8 @@ export function updateAuthUI(currentUser) {
     }
 
     // Показываем админ-панель, если у пользователя роль администратора
-    if (currentUser && adminSection) {
-        const isAdmin = currentUser.rooli === 'admin' || currentUser.rooli === 'ylläpitäjä';
+    if (adminSection) {
+        const isAdmin = isAdminUser(currentUser);
         adminSection.style.display = isAdmin ? 'block' : 'none';
     }
 }
@@ -28,10 +39,10 @@ export async function loadClassrooms() {
     try {
         // Запрос к вашему API для получения списка классов
         const response = await api.getClassrooms();
-        
+
         if (response.ok) {
             const classrooms = await response.json();
-            
+
             // Очищаем контейнер перед заполнением
             gridContainer.innerHTML = '';
 
@@ -44,12 +55,16 @@ export async function loadClassrooms() {
             classrooms.forEach(room => {
                 const card = document.createElement('div');
                 card.className = 'classroom-card';
-                
+
+                const rowsCount = Number(room.rivit ?? room.rows ?? 0);
+                const seatsPerRow = Number(room.paikat ?? room.seats ?? 0);
+                const computedCapacity = rowsCount > 0 && seatsPerRow > 0 ? rowsCount * seatsPerRow : null;
+                const capacityValue = room.koko ?? room.kapasiteetti ?? room.capacity ?? computedCapacity ?? 'N/A';
+
                 card.innerHTML = `
                     <h3>${room.nimi || room.name}</h3>
-                    <p class="classroom-meta">Kapasiteetti: ${room.kapasiteetti || room.capacity || 'N/A'}</p>
-                    <p class="classroom-meta">Kapasiteetti: ${room.koko} hlö</p>
-                    <p class="classroom-details">Rivit: ${room.rivit} | Paikat rivillä: ${room.paikat}</p>
+                    <p class="classroom-meta">Kapasiteetti: ${capacityValue} hlö</p>
+                    <p class="classroom-details">Rivit: ${rowsCount || 'N/A'} | Paikat rivillä: ${seatsPerRow || 'N/A'}</p>
                 `;
 
                 // При клике на карточку можно добавить открытие модального окна бронирования
@@ -100,35 +115,16 @@ export function initClassroomView() {
 /**
  * Настройка панели администратора для добавления новых классов
  */
-export function setupAdminPanel() {
+export function setupAdminPanel(isUserAdmin) {
     const addClassroomBtn = document.getElementById('addClassroomBtn');
     if (addClassroomBtn) {
         addClassroomBtn.addEventListener('click', async () => {
-            const nameInput = document.getElementById('newClassroomName');
-            const capacityInput = document.getElementById('newClassroomCapacity');
-            const messageEl = document.getElementById('adminClassroomMessage');
+            const canAddClassroom =
+                typeof isUserAdmin === 'boolean' ? isUserAdmin : isAdminUser(currentAuthUser);
 
-            const nimi = nameInput ? nameInput.value.trim() : '';
-            const kapasiteetti = capacityInput ? parseInt(capacityInput.value) : 0;
-
-            if (!nimi || !kapasiteetti) {
-                if (messageEl) messageEl.textContent = 'Täytä kaikki kentät!';
-                return;
-            }
-
-            try {
-                const res = await api.addClassroom({ nimi, kapasiteetti });
-                if (res.ok) {
-                    if (messageEl) messageEl.textContent = 'Luokka lisätty onnistuneesti!';
-                    if (nameInput) nameInput.value = '';
-                    if (capacityInput) capacityInput.value = '';
-                    loadClassrooms();
-                } else {
-                    const data = await res.json();
-                    if (messageEl) messageEl.textContent = data.message || 'Virhe luokan lisäämisessä';
-                }
-            } catch (e) {
-                if (messageEl) messageEl.textContent = `Yhteysvirhe palvelimeen ${e}`;
+            const result = await handleAddClassroom(canAddClassroom, 'adminClassroomMessage');
+            if (result && result.success) {
+                await loadClassrooms();
             }
         });
     }
