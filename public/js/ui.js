@@ -3,30 +3,46 @@ import { handleAddClassroom } from './classroom.js';
 
 let currentAuthUser = null;
 
-function isAdminUser(user) {
+function getUserRole(user) {
     const actualUser = user?.user || user;
-    const role = String(actualUser?.rooli || actualUser?.role || '').toLowerCase();
-    return role === 'admin' || role === 'ylläpitäjä';
+    return String(actualUser?.rooli || actualUser?.role || '').toLowerCase();
+}
+
+export function isAdminUser(user) {
+    return ['admin', 'ylläpitäjä', 'yllapitaja'].includes(getUserRole(user));
+}
+
+export function canViewAllReservations(user) {
+    return ['admin', 'ylläpitäjä', 'yllapitaja', 'opettaja', 'teacher'].includes(getUserRole(user));
+}
+
+function toDateKey(value) {
+    if (!value) return '';
+    return String(value).slice(0, 10);
 }
 
 /**
- * Обновляет видимость элементов интерфейса (например, имя пользователя или админ-панель)
+ * Обновляет видимость элементов интерфейса (имя пользователя, админ-панель, кнопки удаления классов)
  */
 export function updateAuthUI(currentUser) {
     currentAuthUser = currentUser || null;
 
     const userNameDisplay = document.getElementById('userNameDisplay');
     const adminSection = document.getElementById('adminSection');
+    const isAdmin = isAdminUser(currentUser);
 
     if (currentUser && userNameDisplay) {
         userNameDisplay.textContent = `${currentUser.nimi || currentUser.email} (${currentUser.rooli || 'student'})`;
     }
 
-    // Показываем админ-панель, если у пользователя роль администратора
+    // Управление классами доступно только администратору
     if (adminSection) {
-        const isAdmin = isAdminUser(currentUser);
         adminSection.style.display = isAdmin ? 'block' : 'none';
     }
+
+    document.querySelectorAll('.delete-classroom-btn').forEach(btn => {
+        btn.style.display = isAdmin ? 'inline-block' : 'none';
+    });
 }
 
 /**
@@ -36,50 +52,112 @@ export async function loadClassrooms() {
     const gridContainer = document.getElementById('classroomsGrid');
     if (!gridContainer) return;
 
+    const bookingDateInput = document.getElementById('bookingDate');
+    const selectedDate = bookingDateInput?.value || new Date().toISOString().slice(0, 10);
+    const showBookings = canViewAllReservations(currentAuthUser);
+    const isAdmin = isAdminUser(currentAuthUser);
+
     try {
-        // Запрос к вашему API для получения списка классов
-        const response = await api.getClassrooms();
+        const availabilityPromise = showBookings
+            ? (typeof api.getAvailability === 'function'
+                ? api.getAvailability(selectedDate).catch(() => null)
+                : api.getStudentReservations().catch(() => null))
+            : Promise.resolve(null);
 
-        if (response.ok) {
-            const classrooms = await response.json();
+        const [roomsRes, availabilityRes] = await Promise.all([
+            api.getClassrooms(),
+            availabilityPromise
+        ]);
 
-            // Очищаем контейнер перед заполнением
-            gridContainer.innerHTML = '';
+        if (!roomsRes.ok) {
+            console.error('Virhe haettaessa luokkeja palvelimelta');
+            return;
+        }
 
-            if (!classrooms || classrooms.length === 0) {
-                gridContainer.innerHTML = '<p style="color: #666; grid-column: 1 / -1;">Ei luokkahuoneita saatavilla.</p>';
-                return;
-            }
+        const classrooms = await roomsRes.json();
+        let activeReservations = [];
 
-            // Создаем карточку для каждого класса
-            classrooms.forEach(room => {
-                const card = document.createElement('div');
-                card.className = 'classroom-card';
+        if (showBookings && availabilityRes && availabilityRes.ok) {
+            const allRes = await availabilityRes.json();
+            activeReservations = Array.isArray(allRes)
+                ? allRes.filter(r =>
+                    (!r.status || r.status === 'active') &&
+                    toDateKey(r.ajankohta || r.paivamaara) === selectedDate
+                )
+                : [];
+        }
 
-                const rowsCount = Number(room.rivit ?? room.rows ?? 0);
-                const seatsPerRow = Number(room.paikat ?? room.seats ?? 0);
-                const computedCapacity = rowsCount > 0 && seatsPerRow > 0 ? rowsCount * seatsPerRow : null;
-                const capacityValue = room.koko ?? room.kapasiteetti ?? room.capacity ?? computedCapacity ?? 'N/A';
+        gridContainer.innerHTML = '';
 
-                card.innerHTML = `
+        if (!classrooms || classrooms.length === 0) {
+            gridContainer.innerHTML = '<p style="color: #666; grid-column: 1 / -1;">Ei luokkahuoneita saatavilla.</p>';
+            return;
+        }
+
+        classrooms.forEach(room => {
+            const roomId = room.luokka_id ?? room.id;
+            const activeBooking = showBookings
+                ? activeReservations.find(r => Number(r.luokka_id ?? r.classroomId) === Number(roomId))
+                : null;
+            const isReserved = Boolean(activeBooking);
+
+            // Учителя и админы видят Varattu / Vapaa; ученики не видят чужие брони
+            const statusBadgeHtml = showBookings
+                ? (isReserved
+                    ? '<span class="badge-varattu">Varattu</span>'
+                    : '<span class="badge-vapaa">Vapaa</span>')
+                : '';
+
+            const deleteClassroomHtml = isAdmin
+                ? `<button type="button" class="danger-btn delete-classroom-btn" data-room-id="${roomId}">Poista luokka</button>`
+                : '';
+
+            const card = document.createElement('div');
+            card.className = `classroom-card${showBookings ? (isReserved ? ' is-reserved' : ' is-free') : ''}`;
+
+            const rowsCount = Number(room.rivit ?? room.rows ?? 0);
+            const seatsPerRow = Number(room.paikat ?? room.seats ?? 0);
+            const computedCapacity = rowsCount > 0 && seatsPerRow > 0 ? rowsCount * seatsPerRow : null;
+            const capacityValue = room.koko ?? room.kapasiteetti ?? room.capacity ?? computedCapacity ?? 'N/A';
+
+            card.innerHTML = `
+                <div class="classroom-card-header">
                     <h3>${room.nimi || room.name}</h3>
-                    <p class="classroom-meta">Kapasiteetti: ${capacityValue} hlö</p>
-                    <p class="classroom-details">Rivit: ${rowsCount || 'N/A'} | Paikat rivillä: ${seatsPerRow || 'N/A'}</p>
-                `;
+                    ${statusBadgeHtml}
+                </div>
+                <p class="classroom-meta">Kapasiteetti: ${capacityValue} hlö</p>
+                <p class="classroom-details">Rivit: ${rowsCount || 'N/A'} | Paikat rivillä: ${seatsPerRow || 'N/A'}</p>
+                ${deleteClassroomHtml}
+            `;
 
-                // При клике на карточку можно добавить открытие модального окна бронирования
-                card.addEventListener('click', () => {
-                    // Если у вас реализована функция открытия модального окна для выбранного класса:
-                    if (typeof window.openClassroomModal === 'function') {
-                        window.openClassroomModal(room);
+            const deleteBtn = card.querySelector('.delete-classroom-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (!confirm('Haluatko varmasti poistaa tämän luokkahuoneen?')) return;
+                    try {
+                        const delRes = await api.deleteClassroom(roomId);
+                        if (delRes.ok) {
+                            await loadClassrooms();
+                        } else {
+                            const errData = await delRes.json().catch(() => ({}));
+                            alert(errData.message || 'Luokkahuoneen poistaminen epäonnistui.');
+                        }
+                    } catch (err) {
+                        console.error('Virhe luokkahuoneen poistossa:', err);
+                        alert('Verkkovirhe.');
                     }
                 });
+            }
 
-                gridContainer.appendChild(card);
+            card.addEventListener('click', () => {
+                if (typeof window.openClassroomModal === 'function') {
+                    window.openClassroomModal(room, activeBooking || null);
+                }
             });
-        } else {
-            console.error('Virhe haettaessa luokkeja palvelimelta');
-        }
+
+            gridContainer.appendChild(card);
+        });
     } catch (error) {
         console.error('Virhe luokkien latauksessa:', error);
     }
@@ -90,14 +168,15 @@ export async function loadClassrooms() {
  */
 export function initClassroomView() {
     const bookingDate = document.getElementById('bookingDate');
-    if (bookingDate && !bookingDate.value) {
-        bookingDate.valueAsDate = new Date();
+    if (bookingDate) {
+        if (!bookingDate.value) {
+            bookingDate.valueAsDate = new Date();
+        }
         bookingDate.addEventListener('change', () => {
             loadClassrooms();
         });
     }
 
-    // Закрытие модального окна мест
     const seatModal = document.getElementById('seatModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     if (closeModalBtn && seatModal) {
