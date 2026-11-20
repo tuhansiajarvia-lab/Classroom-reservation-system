@@ -1,10 +1,12 @@
 /* Карточки аудиторий */
 .classroom-card {
+    position: relative;
+    padding-bottom: 60px;
     background: #ffffff;
     border: 1px solid #ddd;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     cursor: pointer;
@@ -13,7 +15,19 @@
 
 .classroom-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.classroom-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 16px 0 16px;
+}
+
+.classroom-card-header h3 {
+    margin: 0;
 }
 
 .classroom-img {
@@ -43,6 +57,77 @@
     flex-grow: 1;
 }
 
+/* Бейджи статусов */
+.classroom-card .badge-vapaa,
+.badge-vapaa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    margin-right: 2px;
+    background-color: #2abf31 !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    padding: 8px 14px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.classroom-card .badge-varattu,
+.badge-varattu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    margin-right: 2px;
+    background-color: #ff9800 !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    padding: 8px 14px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+/* Кнопка удаления в виде квадратика с корзиной в правом нижнем углу */
+.classroom-card .delete-classroom-btn,
+.classroom-card .danger-btn.delete-classroom-btn,
+button.delete-classroom-btn {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d9534f !important;
+    border-radius: 8px;
+    background-color: #d9534f !important;
+    color: #ffffff !important;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.classroom-card .delete-classroom-btn:hover,
+.classroom-card .danger-btn.delete-classroom-btn:hover,
+button.delete-classroom-btn:hover {
+    background-color: #c0392b !important;
+    border-color: #c0392b !important;
+    color: #ffffff !important;
+}
+
+.classroom-card .delete-classroom-btn:active,
+.classroom-card .danger-btn.delete-classroom-btn:active,
+button.delete-classroom-btn:active {
+    transform: scale(0.96);
+}
+
 /* Формы и элементы ввода */
 .form-group {
     margin-bottom: 15px;
@@ -65,7 +150,7 @@
 
 /* Кнопки */
 .primary-btn {
-    background-color: #3498db;
+    background-color: #39b02e;
     color: white;
     border: none;
     padding: 10px 15px;
@@ -78,15 +163,15 @@
 }
 
 .primary-btn:hover {
-    background-color: #2980b9;
+    background-color: #2bcf28;
 }
 
 .danger-btn {
-    background-color: #e74c3c;
-    color: white;
+    background-color: #d9534f;
+    color: #ffffff;
     border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
+    padding: 10px 16px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
 }
@@ -111,7 +196,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -158,10 +243,11 @@
     background: #fff;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.status-table th, .status-table td {
+.status-table th,
+.status-table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #eee;
@@ -200,6 +286,7 @@
     color: #ffffff;
     font-weight: 600;
 }
+
 .seat.reserved,
 .seat:disabled {
     background-color: #e74c3c;
@@ -207,11 +294,6 @@
     color: #ffffff;
     cursor: not-allowed;
     opacity: 0.8;
-}
-
-/* Карточки аудиторий */
-.classroom-card {
-    cursor: pointer;
 }
 
 /* Модальное окно класса: схема слева, информация справа */
@@ -325,41 +407,4 @@
 .classroom-specs-list li {
     padding-bottom: 8px;
     border-bottom: 1px solid #eef2f6;
-}
-
-.badge-varattu {
-    display: inline-block;
-    background-color: #ff9800;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 0.8rem;
-    padding: 4px 10px;
-    border-radius: 999px;
-}
-
-.danger-btn {
-    background-color: #d9534f;
-    color: #ffffff;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.classroom-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.badge-varattu {
-    display: inline-block;
-    background-color: #ff9800;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 0.78rem;
-    padding: 4px 10px;
-    border-radius: 999px;
-    white-space: nowrap;
 }
