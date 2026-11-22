@@ -1,7 +1,7 @@
 /* Карточки аудиторий */
 .classroom-card {
     position: relative;
-    padding-bottom: 60px;
+    padding-bottom: 0;
     background: #ffffff;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -18,23 +18,42 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+.classroom-img {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    display: block;
+    background-color: #f0f0f0;
+}
+
+.classroom-card-body {
+    position: relative;
+    padding: 16px 16px 60px 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
 .classroom-card-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-    padding: 16px 16px 0 16px;
+    padding: 0;
+    margin-bottom: 10px;
 }
 
 .classroom-card-header h3 {
     margin: 0;
+    font-size: 1.15rem;
+    color: #222;
 }
 
-.classroom-img {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    background-color: #f0f0f0;
+.classroom-meta,
+.classroom-details {
+    margin: 0 0 8px 0;
+    color: #555;
+    font-size: 0.92rem;
 }
 
 .classroom-info {

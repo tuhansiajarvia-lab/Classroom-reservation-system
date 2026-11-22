@@ -4,18 +4,15 @@ import { handleAddClassroom } from './classroom.js';
 let currentAuthUser = null;
 
 const ROOM_IMAGES = {
-    // Примеры привязки по названию (в нижнем регистре):
-    // 'alfa': '/images/classroom-1.jpg',
-    // 'konferenssisali 1': '/images/conference-1.jpg',
+    // Привязка по точному названию комнаты в нижнем регистре (приоритетная):
+    // 'alfa': '/images/25hlo.png',
 };
 
 const DEFAULT_CLASSROOM_IMAGES = [
-    '/images/20hlö.png',
-    '/images/25hlö.png',
-    '/images/36hlö.png',
-    '/images/70hlö.png',
-    '/images/20hlö.png',
-    '/images/25hlö.png'
+    '/images/20hlo.png',
+    '/images/25hlo.png',
+    '/images/36hlo.png',
+    '/images/70hlo.png'
 ];
 
 const DEFAULT_CONFERENCE_IMAGES = [
@@ -23,6 +20,17 @@ const DEFAULT_CONFERENCE_IMAGES = [
     '/images/kokous16.png',
     '/images/kokous30.png'
 ];
+
+function getRoomCapacityNumber(room) {
+    const direct = Number(room?.koko ?? room?.kapasiteetti ?? room?.capacity ?? 0);
+    if (direct > 0) return direct;
+
+    const rows = Number(room?.rivit ?? room?.rows ?? 0);
+    const seats = Number(room?.paikat ?? room?.seats ?? 0);
+    if (rows > 0 && seats > 0) return rows * seats;
+
+    return 0;
+}
 
 function getRoomImage(room, index = 0) {
     const rawName = String(room?.nimi || room?.name || '').trim().toLowerCase();
@@ -34,15 +42,26 @@ function getRoomImage(room, index = 0) {
     const isConference =
         roomType.includes('konfer') ||
         roomType.includes('conf') ||
+        roomType.includes('kokous') ||
         rawName.includes('konfer') ||
-        rawName.includes('vip') ||
-        rawName.includes('kokous');
+        rawName.includes('kokous') ||
+        rawName.includes('vip');
+
+    const capacity = getRoomCapacityNumber(room);
 
     if (isConference) {
-        return DEFAULT_CONFERENCE_IMAGES[index % DEFAULT_CONFERENCE_IMAGES.length] || '/images/default-room.jpg';
+        if (capacity > 0 && capacity <= 10) return '/images/kokous8.png';
+        if (capacity > 0 && capacity <= 22) return '/images/kokous16.png';
+        if (capacity > 22) return '/images/kokous30.png';
+        return DEFAULT_CONFERENCE_IMAGES[index % DEFAULT_CONFERENCE_IMAGES.length];
     }
 
-    return DEFAULT_CLASSROOM_IMAGES[index % DEFAULT_CLASSROOM_IMAGES.length] || '/images/default-room.jpg';
+    if (capacity > 0 && capacity <= 22) return '/images/20hlo.png';
+    if (capacity > 0 && capacity <= 30) return '/images/25hlo.png';
+    if (capacity > 0 && capacity <= 50) return '/images/36hlo.png';
+    if (capacity > 50) return '/images/70hlo.png';
+
+    return DEFAULT_CLASSROOM_IMAGES[index % DEFAULT_CLASSROOM_IMAGES.length];
 }
 
 function getUserRole(user) {
@@ -181,20 +200,20 @@ export async function loadClassrooms() {
             const computedCapacity = rowsCount > 0 && seatsPerRow > 0 ? rowsCount * seatsPerRow : null;
             const capacityValue = room.koko ?? room.kapasiteetti ?? room.capacity ?? computedCapacity ?? 'N/A';
 
-            card.innerHTML = `
+           card.innerHTML = `
                 <img
                     src="${roomImage}"
                     alt="${roomName}"
                     class="classroom-img"
                     loading="lazy"
-                    onerror="this.onerror=null;this.src='/images/default-room.jpg';"
+                    onerror="if (!this.dataset.fallback) { this.dataset.fallback = '1'; this.src='/images/20hlo.png'; }"
                 >
                 <div class="classroom-card-body">
                     <div class="classroom-card-header">
                         <h3>${roomName}</h3>
                         ${statusBadgeHtml}
                     </div>
-                    <p class="classroom-meta">Kapasiteetti: ${capacityValue} hlö</p>
+                    <p class="classroom-meta">Kapasiteetti: ${capacityValue} hlo</p>
                     <p class="classroom-details">Rivit: ${rowsCount || 'N/A'} | Paikat rivillä: ${seatsPerRow || 'N/A'}</p>
                     ${deleteClassroomHtml}
                 </div>
