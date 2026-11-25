@@ -363,3 +363,48 @@
     border-radius: 999px;
     white-space: nowrap;
 }
+
+.classroom-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.classroom-card .badge-vapaa {
+    display: inline-block;
+    background-color: #2e7d32;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.classroom-card .badge-varattu {
+    display: inline-block;
+    background-color: #ff9800;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+#seatModal #reserveBtn,
+button#reserveBtn {
+    background-color: #2e7d32;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+#seatModal #reserveBtn:hover,
+button#reserveBtn:hover {
+    background-color: #256628;
+}
