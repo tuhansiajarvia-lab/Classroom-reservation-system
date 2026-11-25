@@ -1,5 +1,6 @@
 // Базовый URL для бэкенда
 const API_URL = '/api';
+
 /**
  * Универсальный помощник для отправки запросов с автоматической передачей кук (credentials)
  */
@@ -20,7 +21,7 @@ async function apiRequest(endpoint, options = {}) {
         ...options,
         headers: {
             ...defaultOptions.headers,
-            ...(options.headers || {})  
+            ...(options.headers || {})
         }
     };
 
@@ -36,12 +37,13 @@ export const api = {
     register: (userData) => apiRequest('/auth/register', { method: 'POST', body: userData }),
     logout: () => apiRequest('/auth/logout', { method: 'POST' }),
 
-    // Классы и места
+    // Классы
     getClassrooms: () => apiRequest('/classrooms'),
-    getSeats: (classId, date) => apiRequest(`/classrooms/${classId}/seats?date=${date}`),
     addClassroom: (classroomData) => apiRequest('/admin/classrooms', { method: 'POST', body: classroomData }),
+    deleteClassroom: (classroomId) => apiRequest(`/admin/classrooms/${classroomId}`, { method: 'DELETE' }),
 
     // Бронирования
+    getAvailability: (date) => apiRequest(`/reservations/availability?date=${encodeURIComponent(date)}`),
     getStudentReservations: () => apiRequest('/reservations/my'),
     getAdminReservations: () => apiRequest('/admin/reservations'),
     createReservation: (reservationData) => apiRequest('/reservations', { method: 'POST', body: reservationData }),

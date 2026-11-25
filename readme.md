@@ -57,7 +57,13 @@ classroom-reservation-backend/
 ├── server.js              # Sovelluksen päätiedosto ja käynnistys
 └── swagger.yaml           # API-dokumentaatio (OpenAPI 3.0)
 
-Test user's account data
+Test user's account data:
+
+Ylläpitäjän tili:
+
+Ylläpitäjä Yksi
+admin@test.fi
+123qwe_1
 
 Oppilaan tili:
 
@@ -66,6 +72,7 @@ oppilas@test.fi
 123qwe
 
 Opettajän tili:
+
 Opettäjä Yksi
 opettaja@test.fi
 123qwe_

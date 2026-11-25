@@ -3,6 +3,67 @@ import { handleAddClassroom } from './classroom.js';
 
 let currentAuthUser = null;
 
+const ROOM_IMAGES = {
+    // Привязка по точному названию комнаты в нижнем регистре (приоритетная):
+    // 'alfa': '/images/25hlo.png',
+};
+
+const DEFAULT_CLASSROOM_IMAGES = [
+    '/images/20hlo.png',
+    '/images/25hlo.png',
+    '/images/36hlo.png',
+    '/images/70hlo.png'
+];
+
+const DEFAULT_CONFERENCE_IMAGES = [
+    '/images/kokous8.png',
+    '/images/kokous16.png',
+    '/images/kokous30.png'
+];
+
+function getRoomCapacityNumber(room) {
+    const direct = Number(room?.koko ?? room?.kapasiteetti ?? room?.capacity ?? 0);
+    if (direct > 0) return direct;
+
+    const rows = Number(room?.rivit ?? room?.rows ?? 0);
+    const seats = Number(room?.paikat ?? room?.seats ?? 0);
+    if (rows > 0 && seats > 0) return rows * seats;
+
+    return 0;
+}
+
+function getRoomImage(room, index = 0) {
+    const rawName = String(room?.nimi || room?.name || '').trim().toLowerCase();
+    if (rawName && ROOM_IMAGES[rawName]) {
+        return ROOM_IMAGES[rawName];
+    }
+
+    const roomType = String(room?.tyyppi || room?.type || '').trim().toLowerCase();
+    const isConference =
+        roomType.includes('konfer') ||
+        roomType.includes('conf') ||
+        roomType.includes('kokous') ||
+        rawName.includes('konfer') ||
+        rawName.includes('kokous') ||
+        rawName.includes('vip');
+
+    const capacity = getRoomCapacityNumber(room);
+
+    if (isConference) {
+        if (capacity > 0 && capacity <= 10) return '/images/kokous8.png';
+        if (capacity > 0 && capacity <= 22) return '/images/kokous16.png';
+        if (capacity > 22) return '/images/kokous30.png';
+        return DEFAULT_CONFERENCE_IMAGES[index % DEFAULT_CONFERENCE_IMAGES.length];
+    }
+
+    if (capacity > 0 && capacity <= 22) return '/images/20hlo.png';
+    if (capacity > 0 && capacity <= 30) return '/images/25hlo.png';
+    if (capacity > 0 && capacity <= 50) return '/images/36hlo.png';
+    if (capacity > 50) return '/images/70hlo.png';
+
+    return DEFAULT_CLASSROOM_IMAGES[index % DEFAULT_CLASSROOM_IMAGES.length];
+}
+
 function getUserRole(user) {
     const actualUser = user?.user || user;
     return String(actualUser?.rooli || actualUser?.role || '').toLowerCase();
@@ -41,7 +102,7 @@ export function updateAuthUI(currentUser) {
     }
 
     document.querySelectorAll('.delete-classroom-btn').forEach(btn => {
-        btn.style.display = isAdmin ? 'inline-block' : 'none';
+        btn.style.display = isAdmin ? 'inline-flex' : 'none';
     });
 }
 
@@ -94,8 +155,11 @@ export async function loadClassrooms() {
             return;
         }
 
-        classrooms.forEach(room => {
+        classrooms.forEach((room, index) => {
             const roomId = room.luokka_id ?? room.id;
+            const roomName = room.nimi || room.name || `Luokka ${index + 1}`;
+            const roomImage = getRoomImage(room, index);
+
             const activeBooking = showBookings
                 ? activeReservations.find(r => Number(r.luokka_id ?? r.classroomId) === Number(roomId))
                 : null;
@@ -109,7 +173,23 @@ export async function loadClassrooms() {
                 : '';
 
             const deleteClassroomHtml = isAdmin
-                ? `<button type="button" class="danger-btn delete-classroom-btn" data-room-id="${roomId}">Poista luokka</button>`
+                ? `
+                    <button
+                        type="button"
+                        class="delete-classroom-btn"
+                        data-room-id="${roomId}"
+                        title="Poista luokka"
+                        aria-label="Poista luokka"
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                        </svg>
+                    </button>
+                `
                 : '';
 
             const card = document.createElement('div');
@@ -120,14 +200,23 @@ export async function loadClassrooms() {
             const computedCapacity = rowsCount > 0 && seatsPerRow > 0 ? rowsCount * seatsPerRow : null;
             const capacityValue = room.koko ?? room.kapasiteetti ?? room.capacity ?? computedCapacity ?? 'N/A';
 
-            card.innerHTML = `
-                <div class="classroom-card-header">
-                    <h3>${room.nimi || room.name}</h3>
-                    ${statusBadgeHtml}
+           card.innerHTML = `
+                <img
+                    src="${roomImage}"
+                    alt="${roomName}"
+                    class="classroom-img"
+                    loading="lazy"
+                    onerror="if (!this.dataset.fallback) { this.dataset.fallback = '1'; this.src='/images/20hlo.png'; }"
+                >
+                <div class="classroom-card-body">
+                    <div class="classroom-card-header">
+                        <h3>${roomName}</h3>
+                        ${statusBadgeHtml}
+                    </div>
+                    <p class="classroom-meta">Kapasiteetti: ${capacityValue} hlo</p>
+                    <p class="classroom-details">Rivit: ${rowsCount || 'N/A'} | Paikat rivillä: ${seatsPerRow || 'N/A'}</p>
+                    ${deleteClassroomHtml}
                 </div>
-                <p class="classroom-meta">Kapasiteetti: ${capacityValue} hlö</p>
-                <p class="classroom-details">Rivit: ${rowsCount || 'N/A'} | Paikat rivillä: ${seatsPerRow || 'N/A'}</p>
-                ${deleteClassroomHtml}
             `;
 
             const deleteBtn = card.querySelector('.delete-classroom-btn');

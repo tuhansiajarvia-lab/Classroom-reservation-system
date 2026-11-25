@@ -1,93 +1,65 @@
 const pool = require('../config/db');
 
-// Luo uusi luokkahuone ja paikat
+// Luo uusi luokkahuone (ilman erillisiä paikkoja)
 exports.createClassroom = async (req, res) => {
   const { nimi, rivit, paikat } = req.body;
 
-  if (!nimi || !rivit || !paikat) {
+  const rowsCount = Number(rivit);
+  const seatsPerRow = Number(paikat);
+
+  if (!nimi || !rowsCount || !seatsPerRow) {
     return res.status(400).json({
       message: 'Ilmoita nimi, rivien määrä ja paikkojen määrä rivillä'
     });
   }
 
-  const connection = await pool.getConnection();
+  const koko = rowsCount * seatsPerRow;
 
   try {
-    await connection.beginTransaction();
-
-    const koko = rivit * paikat;
-
-    // Luo luokkahuone
-    const [classroomResult] = await connection.query(
+    const [classroomResult] = await pool.query(
       `INSERT INTO Luokkahuoneet
        (nimi, koko, rivit, paikat)
        VALUES (?, ?, ?, ?)`,
-      [nimi, koko, rivit, paikat]
+      [nimi, koko, rowsCount, seatsPerRow]
     );
-
-    const luokka_id = classroomResult.insertId;
-
-    // Luo paikat
-    const seatsData = [];
-
-    for (let r = 1; r <= rivit; r++) {
-      for (let p = 1; p <= paikat; p++) {
-        seatsData.push([
-          luokka_id,
-          r,
-          p
-        ]);
-      }
-    }
-
-    await connection.query(
-      `INSERT INTO Luokkahuoneen_paikat
-       (luokka_id, rivin_numero, paikka_numero)
-       VALUES ?`,
-      [seatsData]
-    );
-
-    await connection.commit();
 
     res.status(201).json({
-      message: 'Sali ja paikat luotiin onnistuneesti',
-      luokka_id: luokka_id,
+      message: 'Luokkahuone luotiin onnistuneesti',
+      luokka_id: classroomResult.insertId,
       total_seats: koko
     });
   } catch (error) {
-    await connection.rollback();
-
     console.error('Virhe salin luomisessa:', error);
 
     res.status(500).json({
       message: 'Palvelinvirhe salia luotaessa'
     });
-  } finally {
-    connection.release();
   }
 };
 
-// Hae kaikki varaukset
+// Hae kaikki aktiiviset luokkavaraukset
 exports.getAllReservations = async (req, res) => {
   try {
     const [reservations] = await pool.query(
       `SELECT
         v.varaus_id,
+        v.kayttaja_id,
+        v.luokka_id,
         v.ajankohta,
+        v.status,
         k.nimi AS student_nimi,
         k.sahkoposti,
         l.nimi AS luokka_nimi,
-        lp.rivin_numero,
-        lp.paikka_numero
+        l.koko,
+        l.rivit,
+        l.paikat
        FROM Varaukset v
        JOIN Kayttajat k
          ON v.kayttaja_id = k.kayttaja_id
-       JOIN Luokkahuoneen_paikat lp
-         ON v.paikka_id = lp.lp_id
        JOIN Luokkahuoneet l
-         ON lp.luokka_id = l.luokka_id
+         ON v.luokka_id = l.luokka_id
        WHERE v.status = 'active'
-       ORDER BY v.ajankohta DESC`
+       ORDER BY v.ajankohta DESC, v.varaus_id DESC`
     );
 
     res.json(reservations);
@@ -100,31 +72,36 @@ exports.getAllReservations = async (req, res) => {
   }
 };
 
-// Poista luokkahuone (sekä siihen liittyvät paikat транзакцией)
+// Poista luokkahuone (sekä siihen liittyvät varaukset)
 exports.deleteClassroom = async (req, res) => {
   const { id } = req.params;
+  const classroomId = Number(id);
+
+  if (!Number.isInteger(classroomId) || classroomId <= 0) {
+    return res.status(400).json({
+      message: 'Virheellinen luokkahuoneen ID'
+    });
+  }
 
   const connection = await pool.getConnection();
 
   try {
     await connection.beginTransaction();
 
-    // 1. Сначала удаляем все места, привязанные к этому классу, 
-    // чтобы избежать ошибок внешнего ключа (foreign key constraints)
+    // Удаляем связанные с классом брони, чтобы не было конфликта внешнего ключа
     await connection.query(
-      `DELETE FROM Luokkahuoneen_paikat WHERE luokka_id = ?`,
-      [id]
+      'DELETE FROM Varaukset WHERE luokka_id = ?',
+      [classroomId]
     );
 
-    // 2. Затем удаляем сам класс
     const [result] = await connection.query(
-      `DELETE FROM Luokkahuoneet WHERE luokka_id = ?`,
-      [id]
+      'DELETE FROM Luokkahuoneet WHERE luokka_id = ?',
+      [classroomId]
     );
 
     if (result.affectedRows === 0) {
       await connection.rollback();
-      res.status(404).json({
+      return res.status(404).json({
         message: 'Luokkahuonetta ei löytynyt'
       });
     }
@@ -132,7 +109,7 @@ exports.deleteClassroom = async (req, res) => {
     await connection.commit();
 
     res.json({
-      message: 'Luokkahuone ja sen paikat poistettu onnistuneesti'
+      message: 'Luokkahuone poistettu onnistuneesti'
     });
   } catch (error) {
     await connection.rollback();
